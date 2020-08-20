@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/calender_cell_background">
+
+        <TextView
+            android:id="@+id/lay_daycell_tv_day"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop ="3dp"
+            android:paddingRight="3dp"
+            android:gravity="end"
+            android:textSize="13sp"
+            android:textColor="@color/colorCalendarEmpty"
+            tools:text="22" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

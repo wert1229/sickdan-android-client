@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">sickdan</string>
+    <string name="signin_btn_text">로그인</string>
+    <string name="signup_btn_text">회원가입</string>
+    <string name="email_tv_text">이메일</string>
+    <string name="password_tv_text">비밀번호</string>
+    <string name="displayname_tv_text">닉네임</string>
+
+    <string name="preference_name">info</string>
+    <string name="token_key">jwt.token</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="calendar_sunday">일</string>
+    <string name="calendar_monday">월</string>
+    <string name="calendar_tuesday">화</string>
+    <string name="calendar_wednesday">수</string>
+    <string name="calendar_thursday">목</string>
+    <string name="calendar_friday">금</string>
+    <string name="calendar_saturday">토</string>
+
+    <string name="calendar_prev_text">이전</string>
+    <string name="calendar_next_text">다음</string>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/calender_cell_background">
+
+        <TextView
+            android:id="@+id/lay_daycell_tv_day"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="end"
+            android:paddingTop="2dp"
+            android:paddingRight="2dp"
+            android:textColor="@color/colorCalendarDay"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/lay_daycell_tv_weight"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="3dp"
+            android:gravity="center"
+            android:textColor="@color/colorCalendarDay"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lay_daycell_tv_day" />
+
+        <TextView
+            android:id="@+id/lay_daycell_tv_walkcount"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:textColor="@color/colorCalendarDay"
+            android:textSize="10sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lay_daycell_tv_weight" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

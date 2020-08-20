@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.SigninActivity">
+
+        <TextView
+            android:id="@+id/act_signin_tv_token"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/act_signin_tv_message"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/act_signin_tv_token" />
+
+        <EditText
+            android:id="@+id/act_signin_ed_email"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/act_signin_tv_message" />
+
+        <EditText
+            android:id="@+id/act_signin_ed_password"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:inputType="textPassword"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/act_signin_ed_email" />
+
+        <Button
+            android:id="@+id/act_signin_btn_signin"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="@string/signin_btn_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/act_signin_ed_password" />
+        <Button
+            android:id="@+id/act_signin_btn_signup"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="@string/signup_btn_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/act_signin_btn_signin" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
