@@ -9,6 +9,10 @@ import java.util.Calendar;
 import java.util.List;
 
 public class CalendarUtil {
+    public static final String VIEW_MODE_KEY = "viewMode";
+    public static final int MODE_PRIVATE = 0;
+    public static final int MODE_PUBLIC = 1;
+
     public static List<CalendarCell> getDefaultOfMonth(final Calendar calendar) {
         List<CalendarCell> defaultList = new ArrayList<>();
 
@@ -51,11 +55,49 @@ public class CalendarUtil {
         return defaultList;
     }
 
+    public static List<CalendarCell> getDefaultOfMonth(final String date) {
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(4, 6)) - 1;
+        int day = 1;
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day);
+
+        return getDefaultOfMonth(cal);
+    }
+
     public static int getCalendarLineCount(final Calendar calendar) {
         Calendar temp = (Calendar) calendar.clone();
         temp.set(Calendar.DATE, 1);
         int firstDayOfMonth = temp.get(Calendar.DAY_OF_WEEK);
 
         return (temp.getActualMaximum(Calendar.DATE) + firstDayOfMonth - 1 + 6) / 7;
+    }
+
+    public static String calendarToString(Calendar calendar, String pattern) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+        return dateFormat.format(calendar.getTime());
+    }
+
+    public static Calendar stringToCalendar(String date) {
+        Calendar calendar = Calendar.getInstance();
+
+        int year = date.length() >= 4 ? Integer.parseInt(date.substring(0, 4)) : calendar.get(Calendar.YEAR);
+        int month = date.length() >= 6 ? Integer.parseInt(date.substring(4, 6)) - 1 : calendar.get(Calendar.MONTH);
+        int day = date.length() >= 8 ? Integer.parseInt(date.substring(6, 8)) : calendar.get(Calendar.DATE);
+
+        calendar.set(year, month, day);
+
+        return calendar;
+    }
+
+    public static boolean isSameDate(Calendar cal1, Calendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&
+                cal1.get(Calendar.DATE) == cal2.get(Calendar.DATE);
+    }
+
+    public static String getTodayString() {
+        return calendarToString(Calendar.getInstance(), "yyyyMMdd");
     }
 }

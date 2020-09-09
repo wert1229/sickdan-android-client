@@ -10,10 +10,13 @@ import com.kdpark.sickdan.model.ApiClient;
 import com.kdpark.sickdan.model.service.DailyService;
 import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.dto.MemberDto;
+import com.kdpark.sickdan.model.service.MemberService;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.view.control.calendar.CalendarCell;
+import com.kdpark.sickdan.viewmodel.common.Event;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -25,73 +28,71 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-@Getter
 public class MainViewModel extends AndroidViewModel {
 
-    //== Data ==//
-    private MutableLiveData<Calendar> currentDate = new MutableLiveData<>();
-    private MutableLiveData<List<CalendarCell>> dailyList = new MutableLiveData<>();
-    private MutableLiveData<List<MemberDto>> member = new MutableLiveData<>();
+    public final MutableLiveData<MemberDto> member = new MutableLiveData<>();
+
+    //== Event ==//
+    public final MutableLiveData<Event<List<String>>> syncComplete = new MutableLiveData<>();
 
     public MainViewModel(@NonNull Application application) {
         super(application);
     }
 
-    //== Event ==//
-//    private MutableLiveData<Event<String>> tempEvent = new MutableLiveData<>();
-
-    public void setCurrentMonth() {
-        Calendar calendar = Calendar.getInstance();
-        setCalendarData(calendar);
-    }
-
-    public void setPrevMonth() {
-        Calendar calendar = (Calendar) currentDate.getValue().clone();
-        calendar.add(Calendar.MONTH, -1);
-
-        setCalendarData(calendar);
-    }
-
-    public void setNextMonth() {
-        Calendar calendar = (Calendar) currentDate.getValue().clone();
-        calendar.add(Calendar.MONTH, 1);
-
-        setCalendarData(calendar);
-    }
-
-    public void setCalendarData(Calendar calendar) {
-        String yyyymm = new SimpleDateFormat("yyyyMM", Locale.getDefault()).format(calendar.getTime());
-
-        ApiClient.getService(DailyService.class).getDailyListData(yyyymm).enqueue(new Callback<List<DailyDto>>() {
+    public void getMyInfo() {
+        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new Callback<MemberDto>() {
             @Override
-            public void onResponse(Call<List<DailyDto>> call, Response<List<DailyDto>> response) {
-                if (!response.isSuccessful()) return;
-
-                List<DailyDto> dailyData = response.body();
-                List<CalendarCell> cellList = CalendarUtil.getDefaultOfMonth(calendar);
-                Map<String, DailyDto> map = new HashMap<>();
-
-                for (DailyDto daily : dailyData) {
-                    map.put(daily.getDate(), daily);
-                }
-
-                for (CalendarCell cell : cellList) {
-                    if (!map.containsKey(cell.getDate())) continue;
-
-                    DailyDto info = map.get(cell.getDate());
-
-                    cell.setBodyWeight(info.getBodyWeight());
-                    cell.setWalkCount(info.getWalkCount());
-                }
-
-                currentDate.setValue(calendar);
-                dailyList.setValue(cellList);
+            public void onResponse(Call<MemberDto> call, Response<MemberDto> response) {
+                member.setValue(response.body());
             }
 
             @Override
-            public void onFailure(Call<List<DailyDto>> call, Throwable t) {
-                currentDate.setValue(calendar);
-                dailyList.setValue(CalendarUtil.getDefaultOfMonth(calendar));
+            public void onFailure(Call<MemberDto> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void uploadPrevWalkCount(Map<String, ?> map) {
+        if (map.size() == 0) {
+            syncComplete.setValue(new Event<>(new ArrayList<>()));
+            return;
+        }
+
+        Map<String, Integer> params = new HashMap<>();
+
+        final int MAX_COUNT = 5;
+        int count = 0;
+
+        for (String key : map.keySet()) {
+            Object value = map.get(key);
+
+            if (!(value instanceof Integer))
+                map.remove(key);
+            else if (key.compareTo(CalendarUtil.getTodayString()) < 0) {
+                params.put(key, (Integer) value);
+                count++;
+            }
+
+            if (count > MAX_COUNT) break;
+        }
+
+        ApiClient.getService(DailyService.class).syncWalkCount(params).enqueue(new Callback<Map<String, List<String>>>() {
+            @Override
+            public void onResponse(Call<Map<String, List<String>>> call, Response<Map<String, List<String>>> response) {
+                if (!response.isSuccessful()) {
+                    syncComplete.setValue(new Event<>(new ArrayList<>()));
+                    return;
+                }
+
+                List<String> doneDateList = response.body().get("data");
+
+                syncComplete.setValue(new Event<>(doneDateList != null ? doneDateList: new ArrayList<>()));
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, List<String>>> call, Throwable t) {
+                syncComplete.setValue(new Event<>(new ArrayList<>()));
             }
         });
     }

@@ -1,12 +1,11 @@
 package com.kdpark.sickdan.model;
 
 import com.kdpark.sickdan.util.SharedDataUtil;
-import com.kdpark.sickdan.viewmodel.ErrorResponse;
+import com.kdpark.sickdan.viewmodel.common.ErrorResponse;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
@@ -18,7 +17,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ApiClient {
 
-    public static final String BASE_URL = "http://10.0.2.2:8080";
+    public static final String BASE_URL = "http://222.111.195.42:8080";
+//    public static final String BASE_URL = "http://10.0.2.2:8080";
     private static Retrofit retrofit;
 
     private ApiClient() {};

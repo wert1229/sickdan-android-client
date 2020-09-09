@@ -1,14 +1,18 @@
 package com.kdpark.sickdan.view;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityIntroBinding;
+import com.kdpark.sickdan.util.service.StepService;
 
 public class IntroActivity extends AppCompatActivity {
 
@@ -20,20 +24,16 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_intro);
 
-        new Thread(() -> {
-            for (int i = 0; i < 100; i++) {
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        Intent serviceIntent = new Intent(this, StepService.class);
+        startService(serviceIntent);
 
-                mHandler.post(() -> binding.actIntroPbLoading.setProgress(binding.actIntroPbLoading.getProgress() + 1));
-            }
-
+        mHandler.postDelayed(() -> {
             Intent intent = new Intent(getApplicationContext(), SigninActivity.class);
             startActivity(intent);
             finish();
-        }).start();
+        }, 1000);
     }
+
+    @Override
+    public void onBackPressed() {}
 }

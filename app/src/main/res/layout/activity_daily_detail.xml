@@ -5,19 +5,51 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:background="@color/mainGreen">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/act_detail_tb_top"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/act_detail_img_close"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_baseline_close_24" />
+
+            <TextView
+                android:id="@+id/act_detail_tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:fontFamily="@font/bold_round"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:layout_marginEnd="40dp"/>
+
+        </androidx.appcompat.widget.Toolbar>
 
         <!--날짜-->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3">
+            android:layout_weight="4">
 
             <TextView
                 android:id="@+id/act_detail_tv_date"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
                 android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="@color/defaultWhite"
+                android:textStyle="bold"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                android:singleLine="true"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -25,29 +57,19 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <fragment
-            android:id="@+id/act_detail_frg_dayinfo"
-            android:name="com.kdpark.sickdan.view.DayInfoFragment"
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:id="@+id/act_detail_fl_dayinfo"
+            android:layout_width="360dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/bg_card_white"/>
 
         <!--하단-->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/act_detail_fab_add_meal"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:srcCompat="@android:drawable/ic_menu_add"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_weight="4">
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>

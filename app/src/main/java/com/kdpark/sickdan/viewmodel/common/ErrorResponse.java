@@ -1,4 +1,4 @@
-package com.kdpark.sickdan.viewmodel;
+package com.kdpark.sickdan.viewmodel.common;
 
 import java.util.List;
 

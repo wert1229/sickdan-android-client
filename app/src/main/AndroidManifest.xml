@@ -2,21 +2,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kdpark.sickdan">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
+        android:name=".util.kakao.GlobalApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_app"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".view.MealAddActivity" android:theme="@style/Theme.AppCompat.Dialog" />
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="@string/kakao_app_key" />
+        <service android:name=".util.service.StepService" android:exported="false"/>
+        <activity android:name=".view.FriendMainActivity" />
         <activity android:name=".view.DailyDetailActivity" />
         <activity android:name=".view.MainActivity" />
         <activity android:name=".view.SignupActivity" />
-        <activity android:name=".view.SigninActivity" />
+        <activity android:name=".view.SigninActivity">
+        </activity>
         <activity android:name=".view.IntroActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +34,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.kdpark.sickdan"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

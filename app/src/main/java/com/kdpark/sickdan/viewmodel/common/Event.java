@@ -1,4 +1,4 @@
-package com.kdpark.sickdan.viewmodel;
+package com.kdpark.sickdan.viewmodel.common;
 
 import android.os.Build;
 
@@ -20,11 +20,10 @@ public class Event<T> {
         this.value = value;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public Optional<T> getValueIfNotHandled() {
+    public T getValueIfNotHandledOrNull() {
         if (!isHandled) {
             isHandled = true;
-            return Optional.of(this.value);
+            return this.value;
         } else {
             return null;
         }

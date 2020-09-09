@@ -6,43 +6,68 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/calender_cell_background">
+        android:background="@drawable/bg_calender_cell">
 
         <TextView
             android:id="@+id/lay_daycell_tv_day"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:gravity="end"
-            android:paddingTop="2dp"
-            android:paddingRight="2dp"
-            android:textColor="@color/colorCalendarDay"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="7dp"
+            android:textColor="@color/calendarDay"
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/lay_daycell_tv_weight"
+        <LinearLayout
+            android:id="@+id/lay_daycell_ll_weight"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="3dp"
-            android:gravity="center"
-            android:textColor="@color/colorCalendarDay"
-            android:textSize="10sp"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lay_daycell_tv_day" />
+            app:layout_constraintTop_toBottomOf="@id/lay_daycell_tv_day">
 
-        <TextView
-            android:id="@+id/lay_daycell_tv_walkcount"
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_weight"
+                android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/lay_daycell_tv_weight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/calendarDay"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lay_daycell_ll_walkcount"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:gravity="center"
-            android:textColor="@color/colorCalendarDay"
-            android:textSize="10sp"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lay_daycell_tv_weight" />
+            app:layout_constraintTop_toBottomOf="@id/lay_daycell_ll_weight">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_steps"
+                android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/lay_daycell_tv_walkcount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/calendarDay"
+                android:textSize="10sp" />
+        </LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

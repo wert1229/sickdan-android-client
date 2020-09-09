@@ -5,12 +5,12 @@ import lombok.Data;
 
 @Data
 public class SignInForm {
-    private String email;
+    private String userId;
     private String password;
 
     @Builder
-    public SignInForm(String email, String password) {
-        this.email = email;
+    public SignInForm(String userId, String password) {
+        this.userId = userId;
         this.password = password;
     }
 }

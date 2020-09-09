@@ -7,12 +7,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class MealPhotoDto {
+    private Long id;
+    private String fileOriginName;
     private String fileName;
-    private String filePath;
+    private String fileUrl;
 
     @Builder
-    public MealPhotoDto(String fileName, String filePath) {
+    public MealPhotoDto(Long id, String fileOriginName, String fileName, String fileUrl) {
+        this.id = id;
+        this.fileOriginName = fileOriginName;
         this.fileName = fileName;
-        this.filePath = filePath;
+        this.fileUrl = fileUrl;
     }
 }

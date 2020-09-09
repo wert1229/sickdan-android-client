@@ -7,31 +7,20 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.IntroActivity">
+        tools:context=".view.IntroActivity"
+        android:background="@color/mainGreen">
 
-        <TextView
-            android:id="@+id/act_intro_tv_title"
-            android:layout_width="100dp"
+        <ImageView
+            android:layout_width="350dp"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="2:1"
-            android:text="@string/app_name"
-            android:textSize="20sp"
-            android:gravity="center"
-            app:layout_constraintVertical_bias="0.1"
+            android:src="@drawable/ic_app"
+            app:layout_constraintDimensionRatio="3:1"
+            app:layout_constraintVertical_bias="0.3"
+            app:layout_constraintHorizontal_bias="0.6"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ProgressBar
-            android:id="@+id/act_intro_pb_loading"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="20dp"
-            app:layout_constraintVertical_bias="0.7"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/act_intro_tv_title" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -5,14 +5,16 @@ import lombok.Data;
 
 @Data
 public class SignUpForm {
-    private String email;
+    private String userId;
     private String password;
     private String displayName;
+    private String email;
 
     @Builder
-    public SignUpForm(String email, String password, String displayName) {
-        this.email = email;
+    public SignUpForm(String userId, String password, String displayName, String email) {
+        this.userId = userId;
         this.password = password;
         this.displayName = displayName;
+        this.email = email;
     }
 }

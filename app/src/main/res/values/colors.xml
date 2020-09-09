@@ -3,6 +3,16 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="colorCalendarDay">#333333</color>
-    <color name="colorCalendarEmpty">#969696</color>
+    <color name="calendarDay">#333333</color>
+    <color name="calendarEmpty">#969696</color>
+    <color name="mainGreen">#53c653</color>
+    <color name="lightGreen">#d9f2e6</color>
+    <color name="textGray1">#4d4d4d</color>
+    <color name="hintTextWhite">#b9dfc8</color>
+    <color name="carrot">#ff704d</color>
+    <color name="carrotDisabled">#fcbeac</color>
+    <color name="defaultWhite">#ffffff</color>
 </resources>
+
+
+

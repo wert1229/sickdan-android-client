@@ -6,30 +6,38 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/calender_cell_background">
+        android:paddingStart="30dp">
 
         <TextView
             android:id="@+id/lay_mealitem_tv_description"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:gravity="start|center_vertical"
+            android:textSize="18sp"
             android:textColor="@android:color/black"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/lay_mealitem_img_handler"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
-            android:id="@+id/lay_mealitem_img_handler"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+        <Button
+            android:id="@+id/lay_mealitem_ib_camera"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="15dp"
             android:gravity="center"
-            android:src="@drawable/abc_vector_test"
+            android:background="@drawable/ic_camera"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/lay_mealitem_tv_description"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="@id/lay_mealitem_tv_description"
+            app:layout_constraintBottom_toBottomOf="@id/lay_mealitem_tv_description"
+            app:layout_constraintStart_toEndOf="@id/lay_mealitem_tv_description" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lay_mealitem_rcv_photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/lay_mealitem_tv_description"
+            app:layout_constraintStart_toStartOf="@id/lay_mealitem_tv_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

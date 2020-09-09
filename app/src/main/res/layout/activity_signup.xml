@@ -3,84 +3,196 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/mainGreen"
         tools:context=".view.SignupActivity">
 
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:src="@drawable/ic_signup" />
 
-        <TextView
-            android:id="@+id/act_signup_tv_email"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="100dp"
-            android:gravity="center"
-            android:text="@string/email_tv_text"
-            app:layout_constraintDimensionRatio="2:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/act_signup_tv_password"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:text="@string/password_tv_text"
-            app:layout_constraintDimensionRatio="2:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/act_signup_tv_email" />
-
-        <TextView
-            android:id="@+id/act_signup_tv_displayname"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:text="@string/displayname_tv_text"
-            app:layout_constraintDimensionRatio="2:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/act_signup_tv_password" />
-
-        <Button
-            android:id="@+id/act_signup_btn_signup"
-            android:layout_width="100dp"
-            android:layout_height="0dp"
-            android:text="@string/signup_btn_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="350dp"
+            android:layout_height="400dp"
+            android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/act_signup_tv_displayname" />
+            android:background="@drawable/bg_card_white">
 
-        <EditText
-            android:id="@+id/act_signup_ed_email"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="@+id/act_signup_tv_email"
-            app:layout_constraintDimensionRatio="3:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/act_signup_tv_email"
-            app:layout_constraintTop_toTopOf="@+id/act_signup_tv_email" />
+            <TextView
+                android:id="@+id/act_signup_tv_id"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="@string/id_tv_text"
+                app:layout_constraintEnd_toStartOf="@id/act_signup_gl_form"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/act_signup_ed_password"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="@+id/act_signup_tv_password"
-            app:layout_constraintDimensionRatio="3:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/act_signup_tv_password"
-            app:layout_constraintTop_toTopOf="@+id/act_signup_tv_password" />
+            <TextView
+                android:id="@+id/act_signup_tv_password"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:text="@string/password_tv_text"
+                app:layout_constraintEnd_toEndOf="@id/act_signup_tv_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_id" />
 
-        <EditText
-            android:id="@+id/act_signup_ed_displayname"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:inputType="textPersonName"
-            app:layout_constraintBottom_toBottomOf="@+id/act_signup_tv_displayname"
-            app:layout_constraintDimensionRatio="3:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/act_signup_tv_displayname"
-            app:layout_constraintTop_toTopOf="@+id/act_signup_tv_displayname" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/act_signup_tv_password_re"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:text="@string/password_re_tv_text"
+                app:layout_constraintEnd_toEndOf="@id/act_signup_tv_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_password" />
+
+            <TextView
+                android:id="@+id/act_signup_tv_displayname"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="@string/displayname_tv_text"
+                app:layout_constraintEnd_toStartOf="@id/act_signup_gl_form"
+                app:layout_constraintTop_toBottomOf="@id/act_signup_tv_password_re" />
+
+            <TextView
+                android:id="@+id/act_signup_tv_email"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:text="@string/email_tv_text"
+                app:layout_constraintEnd_toEndOf="@id/act_signup_tv_id"
+                app:layout_constraintTop_toBottomOf="@id/act_signup_tv_displayname" />
+
+            <EditText
+                android:id="@+id/act_signup_ed_id"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="5dp"
+                android:paddingStart="10dp"
+                android:inputType="textPersonName"
+                android:hint="@string/ed_id_hint"
+                android:focusableInTouchMode="true"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_tv_id"
+                app:layout_constraintStart_toEndOf="@id/act_signup_gl_form"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_id" />
+
+            <ImageView
+                android:id="@+id/act_signup_img_id"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:visibility="invisible"
+                android:src="@drawable/ic_baseline_check_14"
+                app:layout_constraintTop_toTopOf="@id/act_signup_ed_id"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_ed_id"
+                app:layout_constraintStart_toEndOf="@id/act_signup_ed_id" />
+
+            <EditText
+                android:id="@+id/act_signup_ed_password"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:paddingStart="10dp"
+                android:inputType="textPassword"
+                android:hint="@string/ed_password_hint"
+                android:focusableInTouchMode="true"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_tv_password"
+                app:layout_constraintStart_toStartOf="@id/act_signup_ed_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_password" />
+
+            <ImageView
+                android:id="@+id/act_signup_img_password"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_open_eye"
+                app:layout_constraintTop_toTopOf="@id/act_signup_ed_password"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_ed_password"
+                app:layout_constraintStart_toEndOf="@id/act_signup_ed_password" />
+
+            <EditText
+                android:id="@+id/act_signup_ed_password_re"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:paddingStart="10dp"
+                android:inputType="textPassword"
+                android:hint="@string/ed_password_re_hint"
+                android:focusableInTouchMode="true"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_tv_password_re"
+                app:layout_constraintStart_toStartOf="@id/act_signup_ed_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_password_re" />
+
+            <EditText
+                android:id="@+id/act_signup_ed_displayname"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:paddingStart="10dp"
+                android:inputType="textPersonName"
+                android:hint="@string/ed_displayname_hint"
+                android:focusableInTouchMode="true"
+                android:autoLink="none"
+                android:textSize="15sp"
+                android:importantForAutofill="no"
+                app:layout_constraintBottom_toBottomOf="@+id/act_signup_tv_displayname"
+                app:layout_constraintStart_toStartOf="@id/act_signup_ed_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_displayname" />
+
+            <EditText
+                android:id="@+id/act_signup_ed_email"
+                android:layout_width="175dp"
+                android:layout_height="50dp"
+                android:paddingStart="10dp"
+                android:inputType="textEmailAddress"
+                android:hint="@string/ed_email_hint"
+                android:focusableInTouchMode="true"
+                android:autoLink="none"
+                android:textSize="15sp"
+                android:importantForAutofill="no"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_tv_email"
+                app:layout_constraintStart_toStartOf="@id/act_signup_ed_id"
+                app:layout_constraintTop_toTopOf="@id/act_signup_tv_email" />
+
+            <ImageView
+                android:id="@+id/act_signup_img_email"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:visibility="invisible"
+                android:src="@drawable/ic_baseline_check_14"
+                app:layout_constraintTop_toTopOf="@id/act_signup_ed_email"
+                app:layout_constraintBottom_toBottomOf="@id/act_signup_ed_email"
+                app:layout_constraintStart_toEndOf="@id/act_signup_ed_email" />
+
+            <Button
+                android:id="@+id/act_signup_btn_signup"
+                android:layout_width="130dp"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_btn_carrot"
+                android:enabled="false"
+                android:text="@string/signup_btn_text"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="35dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/act_signup_tv_email" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/act_signup_gl_form"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.35" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </layout>

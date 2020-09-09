@@ -1,18 +1,25 @@
 package com.kdpark.sickdan.view.control.calendar;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kdpark.sickdan.R;
+import com.kdpark.sickdan.util.CalendarUtil;
+import com.kdpark.sickdan.util.SharedDataUtil;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import lombok.Getter;
@@ -25,6 +32,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<CalendarCell> list;
     private int calendarLineCount;
     private onCalendarCellClickListener listener;
+
+    public interface onCalendarCellClickListener {
+        void onClick(DayViewHolder viewHolder, CalendarCell cell);
+    }
 
     public CalendarAdapter(Context context) {
         this(context, new ArrayList<>());
@@ -44,6 +55,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void setList(List<CalendarCell> list) {
         this.list = list;
         this.calendarLineCount = getCalendarLineCount();
+        notifyDataSetChanged();
     }
 
     private int getCalendarLineCount() {
@@ -103,15 +115,33 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             DayViewHolder viewHolder = (DayViewHolder) holder;
             viewHolder.day.setText(displayDate);
 
-            if (list.get(position).getBodyWeight() > 0.0)
+            String today = CalendarUtil.calendarToString(Calendar.getInstance(), "yyyyMMdd");
+
+            if (list.get(position).getBodyWeight() <= 0.0)
+                viewHolder.weightLayout.setVisibility(View.GONE);
+            else
                 viewHolder.weight.setText(String.valueOf(list.get(position).getBodyWeight()));
 
-            if (list.get(position).getWalkCount() > 0)
+            if (list.get(position).getWalkCount() <= 0)
+                viewHolder.walkCountLayout.setVisibility(View.GONE);
+            else
                 viewHolder.walkCount.setText(String.valueOf(list.get(position).getWalkCount()));
 
-            viewHolder.itemView.setOnClickListener(v -> {
-                listener.onClick(list.get(position));
-            });
+            if (date.equals(today)) {
+                Drawable todayBg = ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_calendar_today, null);
+                viewHolder.day.setBackground(todayBg);
+                viewHolder.day.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.defaultWhite, null));
+
+                String todayWalkCount = SharedDataUtil.getData(SharedDataUtil.TODAY_COUNT, false);
+                if (todayWalkCount.isEmpty() || "0".equals(todayWalkCount))
+                    viewHolder.walkCountLayout.setVisibility(View.GONE);
+                else {
+                    viewHolder.walkCountLayout.setVisibility(View.VISIBLE);
+                    viewHolder.walkCount.setText(todayWalkCount);
+                }
+            }
+
+            viewHolder.itemView.setOnClickListener(v -> listener.onClick(viewHolder, list.get(position)));
         }
     }
 
@@ -125,21 +155,25 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return list.get(position).getType().getInt();
     }
 
-    public class DayViewHolder extends RecyclerView.ViewHolder {
+    public static class DayViewHolder extends RecyclerView.ViewHolder {
 
         TextView day;
         TextView weight;
         TextView walkCount;
+        LinearLayout weightLayout;
+        LinearLayout walkCountLayout;
 
         public DayViewHolder(@NonNull View itemView) {
             super(itemView);
             this.day = itemView.findViewById(R.id.lay_daycell_tv_day);
             this.weight = itemView.findViewById(R.id.lay_daycell_tv_weight);
             this.walkCount = itemView.findViewById(R.id.lay_daycell_tv_walkcount);
+            this.weightLayout = itemView.findViewById(R.id.lay_daycell_ll_weight);
+            this.walkCountLayout = itemView.findViewById(R.id.lay_daycell_ll_walkcount);
         }
     }
 
-    public class EmptyViewHolder extends RecyclerView.ViewHolder {
+    public static class EmptyViewHolder extends RecyclerView.ViewHolder {
 
         TextView day;
 
@@ -147,9 +181,5 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(itemView);
             this.day = itemView.findViewById(R.id.lay_daycell_tv_day);
         }
-    }
-
-    public interface onCalendarCellClickListener {
-        void onClick(CalendarCell cell);
     }
 }

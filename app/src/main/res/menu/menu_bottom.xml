@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_bottom_calendar"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_calendar_today_24"
+        android:enabled="true"
+        android:checked="true"
+        android:title="@string/nav_menu_calendar" />
+
+    <item
+        android:id="@+id/menu_bottom_friend"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_people_24"
+        android:enabled="true"
+        android:title="@string/nav_menu_friend"/>
+
+    <item
+        android:id="@+id/menu_bottom_statistics"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_baseline_assessment_24"
+        android:enabled="true"
+        android:title="@string/nav_menu_stat"/>
+</menu>
