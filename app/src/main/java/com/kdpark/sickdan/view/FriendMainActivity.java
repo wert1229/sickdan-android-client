@@ -45,21 +45,12 @@ public class FriendMainActivity extends AppCompatActivity {
 
     private void initView() {
         setSupportActionBar(binding.actFriendMainTbTop);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24);
-        getSupportActionBar().setTitle(getIntent().getStringExtra("displayName"));
+        getSupportActionBar().setDisplayShowCustomEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        binding.actFriendMainTvTitle.setText(getIntent().getStringExtra("displayName"));
+        binding.actFriendMainImgClose.setOnClickListener(v -> finish());
     }
 
     private void initObserver() {}
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

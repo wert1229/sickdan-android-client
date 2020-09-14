@@ -7,7 +7,8 @@ public class SharedDataUtil {
     private static Map<String, String> sharedMap = new HashMap<>();
 
     public static final String JWT_INFO = "jwt.info";
-    public static final String JWT_TOKEN = "jwt.token";
+    public static final String JWT_ACCESS_TOKEN = "jwt.access.token";
+    public static final String JWT_REFRESH_TOKEN = "jwt.refresh.token";
     public static final String STEP_INFO = "step.info";
     public static final String TODAY_COUNT = "today.count";
 

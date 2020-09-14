@@ -37,4 +37,12 @@
     <string name="meal_delete_message">삭제 시 사진정보도 함께 삭제됩니다.\n정말 삭제하시겠습니까?</string>
     <string name="meal_delete_fire">삭제</string>
     <string name="meal_delete_cancel">취소</string>
+
+    <string name="notification_title">식단</string>
+    <string name="notification_message">만보기 작동 중</string>
+    <string name="ticker_text">sickdan</string>
+
+    <string name="my_code">내 코드</string>
+    <string name="friend_code">친구 코드</string>
+    <string name="friend_request">요청</string>
 </resources>

@@ -173,7 +173,7 @@ public class SignupActivity extends AppCompatActivity {
             binding.actSignupEdPasswordRe.setSelection(binding.actSignupEdPasswordRe.getText().length());
         });
 
-        viewModel.onSigninSuccess.observe(this, message -> {
+        viewModel.onSignupSuccess.observe(this, message -> {
             Toast.makeText(this, message.getValueIfNotHandledOrNull(), Toast.LENGTH_SHORT).show();
             finish();
         });

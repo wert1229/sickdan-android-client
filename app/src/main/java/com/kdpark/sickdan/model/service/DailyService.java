@@ -26,10 +26,10 @@ public interface DailyService {
     @GET("api/v1/members/me/dailies/{yyyymmdd}")
     Call<DailyDto> getDayDetailData(@Path("yyyymmdd") String yyyymmdd);
 
-    @GET("api/v1/members/{memberId}}/dailies")
+    @GET("api/v1/members/{memberId}/dailies")
     Call<List<DailyDto>> getDailyListData(@Path("memberId")Long memberId, @Query("yyyymm") String yyyymm);
 
-    @GET("api/v1/members/{memberId}}/dailies/{yyyymmdd}")
+    @GET("api/v1/members/{memberId}/dailies/{yyyymmdd}")
     Call<DailyDto> getDayDetailData(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
 
     @POST("api/v1/meals")

@@ -1,10 +1,13 @@
 package com.kdpark.sickdan.viewmodel;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.kdpark.sickdan.model.ApiClient;
 import com.kdpark.sickdan.model.dto.OAuthTokenInfoDto;
@@ -12,6 +15,7 @@ import com.kdpark.sickdan.model.service.AuthService;
 import com.kdpark.sickdan.model.dto.SignInForm;
 import com.kdpark.sickdan.model.dto.SignUpForm;
 import com.kdpark.sickdan.model.service.MemberService;
+import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.viewmodel.common.ErrorResponse;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
@@ -23,7 +27,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SignViewModel extends ViewModel {
+public class SignViewModel extends AndroidViewModel {
 
     //== Data ==//
     public final MutableLiveData<String> token = new MutableLiveData<>();
@@ -41,7 +45,12 @@ public class SignViewModel extends ViewModel {
 
     //== Event ==//
     public final MutableLiveData<Event<String>> showToast = new MutableLiveData<>();
+    public final MutableLiveData<Event<String>> onSignupSuccess = new MutableLiveData<>();
     public final MutableLiveData<Event<String>> onSigninSuccess = new MutableLiveData<>();
+
+    public SignViewModel(@NonNull Application application) {
+        super(application);
+    }
 
     public void togglePasswordVisible() {
         isPasswordVisible.setValue(!isPasswordVisible.getValue());
@@ -104,7 +113,7 @@ public class SignViewModel extends ViewModel {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!response.isSuccessful()) return;
-                onSigninSuccess.setValue(new Event<>("정상적으로 가입되었습니다"));
+                onSignupSuccess.setValue(new Event<>("정상적으로 가입되었습니다"));
             }
 
             @Override
@@ -129,8 +138,15 @@ public class SignViewModel extends ViewModel {
                     return;
                 }
 
-                String jwtToken = response.headers().get("X-AUTH-TOKEN");
-                token.setValue(jwtToken);
+                String accessToken = response.headers().get(ApiClient.ACCESS_TOKEN_HEADER);
+                String refreshToken = response.headers().get(ApiClient.REFRESH_TOKEN_HEADER);
+
+                SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.JWT_INFO, Context.MODE_PRIVATE);
+                sp.edit().putString(SharedDataUtil.JWT_ACCESS_TOKEN, accessToken)
+                        .putString(SharedDataUtil.JWT_REFRESH_TOKEN, refreshToken)
+                        .apply();
+
+                token.setValue(accessToken);
             }
 
             @Override
@@ -157,8 +173,15 @@ public class SignViewModel extends ViewModel {
                     return;
                 }
 
-                String jwtToken = response.headers().get("X-AUTH-TOKEN");
-                token.setValue(jwtToken);
+                String accessToken = response.headers().get(ApiClient.ACCESS_TOKEN_HEADER);
+                String refreshToken = response.headers().get(ApiClient.REFRESH_TOKEN_HEADER);
+
+                SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.JWT_INFO, Context.MODE_PRIVATE);
+                sp.edit().putString(SharedDataUtil.JWT_ACCESS_TOKEN, accessToken)
+                        .putString(SharedDataUtil.JWT_REFRESH_TOKEN, refreshToken)
+                        .apply();
+
+                token.setValue(accessToken);
             }
 
             @Override
@@ -184,8 +207,15 @@ public class SignViewModel extends ViewModel {
                     return;
                 }
 
-                String jwtToken = response.headers().get("X-AUTH-TOKEN");
-                token.setValue(jwtToken);
+                String accessToken = response.headers().get(ApiClient.ACCESS_TOKEN_HEADER);
+                String refreshToken = response.headers().get(ApiClient.REFRESH_TOKEN_HEADER);
+
+                SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.JWT_INFO, Context.MODE_PRIVATE);
+                sp.edit().putString(SharedDataUtil.JWT_ACCESS_TOKEN, accessToken)
+                        .putString(SharedDataUtil.JWT_REFRESH_TOKEN, refreshToken)
+                        .apply();
+
+                token.setValue(accessToken);
             }
 
             @Override
@@ -194,4 +224,5 @@ public class SignViewModel extends ViewModel {
             }
         });
     }
+
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
+import com.kdpark.sickdan.model.BaseCallback;
 import com.kdpark.sickdan.model.service.DailyService;
 import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.dto.MemberDto;
@@ -33,66 +34,22 @@ public class MainViewModel extends AndroidViewModel {
     public final MutableLiveData<MemberDto> member = new MutableLiveData<>();
 
     //== Event ==//
-    public final MutableLiveData<Event<List<String>>> syncComplete = new MutableLiveData<>();
+//    public final MutableLiveData<Event<List<String>>> syncComplete = new MutableLiveData<>();
 
     public MainViewModel(@NonNull Application application) {
         super(application);
     }
 
     public void getMyInfo() {
-        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new Callback<MemberDto>() {
+        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new BaseCallback<MemberDto>(getApplication()) {
             @Override
-            public void onResponse(Call<MemberDto> call, Response<MemberDto> response) {
+            public void onResponse(Response<MemberDto> response) {
                 member.setValue(response.body());
             }
 
             @Override
-            public void onFailure(Call<MemberDto> call, Throwable t) {
+            public void onFailure(Throwable t) {
 
-            }
-        });
-    }
-
-    public void uploadPrevWalkCount(Map<String, ?> map) {
-        if (map.size() == 0) {
-            syncComplete.setValue(new Event<>(new ArrayList<>()));
-            return;
-        }
-
-        Map<String, Integer> params = new HashMap<>();
-
-        final int MAX_COUNT = 5;
-        int count = 0;
-
-        for (String key : map.keySet()) {
-            Object value = map.get(key);
-
-            if (!(value instanceof Integer))
-                map.remove(key);
-            else if (key.compareTo(CalendarUtil.getTodayString()) < 0) {
-                params.put(key, (Integer) value);
-                count++;
-            }
-
-            if (count > MAX_COUNT) break;
-        }
-
-        ApiClient.getService(DailyService.class).syncWalkCount(params).enqueue(new Callback<Map<String, List<String>>>() {
-            @Override
-            public void onResponse(Call<Map<String, List<String>>> call, Response<Map<String, List<String>>> response) {
-                if (!response.isSuccessful()) {
-                    syncComplete.setValue(new Event<>(new ArrayList<>()));
-                    return;
-                }
-
-                List<String> doneDateList = response.body().get("data");
-
-                syncComplete.setValue(new Event<>(doneDateList != null ? doneDateList: new ArrayList<>()));
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, List<String>>> call, Throwable t) {
-                syncComplete.setValue(new Event<>(new ArrayList<>()));
             }
         });
     }

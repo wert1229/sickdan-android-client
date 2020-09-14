@@ -1,6 +1,8 @@
 package com.kdpark.sickdan.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.util.Log;
 
@@ -93,9 +95,13 @@ public class DailyDetailViewModel extends AndroidViewModel {
                 mealList.setValue(meals);
                 bodyWeight.setValue(daily.getBodyWeight());
 
-                if (CalendarUtil.isSameDate(currentDate.getValue(), Calendar.getInstance())) {
-                    String todayWalkCount = SharedDataUtil.getData(SharedDataUtil.TODAY_COUNT, false);
-                    walkCount.setValue(Integer.parseInt(todayWalkCount));
+                String today = CalendarUtil.calendarToString(currentDate.getValue(), "yyyyMMdd");
+
+                if (mode ==  CalendarUtil.MODE_PRIVATE && CalendarUtil.isSameDate(currentDate.getValue(), Calendar.getInstance())) {
+                    SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.STEP_INFO, Context.MODE_PRIVATE);
+                    int todayCount = sp.getInt(today, 0);
+
+                    walkCount.setValue(todayCount);
                 } else {
                     walkCount.setValue(daily.getWalkCount());
                 }

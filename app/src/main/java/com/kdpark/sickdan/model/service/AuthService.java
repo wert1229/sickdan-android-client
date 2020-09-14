@@ -23,4 +23,7 @@ public interface AuthService {
 
     @POST("v1/oauth/kakao")
     Call<Void> authKakao(@Body OAuthTokenInfoDto tokenInfo);
+
+    @POST("v1/token/refresh")
+    Call<Void> refreshToken(@Body Map<String, Object> param);
 }

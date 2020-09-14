@@ -1,29 +1,17 @@
 package com.kdpark.sickdan.view;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityDailyDetailBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.viewmodel.DailyDetailViewModel;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 

@@ -117,28 +117,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             String today = CalendarUtil.calendarToString(Calendar.getInstance(), "yyyyMMdd");
 
+            viewHolder.weight.setText(String.valueOf(list.get(position).getBodyWeight()));
+
             if (list.get(position).getBodyWeight() <= 0.0)
                 viewHolder.weightLayout.setVisibility(View.GONE);
-            else
-                viewHolder.weight.setText(String.valueOf(list.get(position).getBodyWeight()));
+
+            viewHolder.walkCount.setText(String.valueOf(list.get(position).getWalkCount()));
 
             if (list.get(position).getWalkCount() <= 0)
                 viewHolder.walkCountLayout.setVisibility(View.GONE);
-            else
-                viewHolder.walkCount.setText(String.valueOf(list.get(position).getWalkCount()));
 
             if (date.equals(today)) {
                 Drawable todayBg = ResourcesCompat.getDrawable(context.getResources(), R.drawable.bg_calendar_today, null);
                 viewHolder.day.setBackground(todayBg);
                 viewHolder.day.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.defaultWhite, null));
-
-                String todayWalkCount = SharedDataUtil.getData(SharedDataUtil.TODAY_COUNT, false);
-                if (todayWalkCount.isEmpty() || "0".equals(todayWalkCount))
-                    viewHolder.walkCountLayout.setVisibility(View.GONE);
-                else {
-                    viewHolder.walkCountLayout.setVisibility(View.VISIBLE);
-                    viewHolder.walkCount.setText(todayWalkCount);
-                }
             }
 
             viewHolder.itemView.setOnClickListener(v -> listener.onClick(viewHolder, list.get(position)));

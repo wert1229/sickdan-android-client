@@ -22,7 +22,6 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivitySigninBinding;
 import com.kdpark.sickdan.util.OAuthUtil;
 import com.kdpark.sickdan.util.SharedDataUtil;
-import com.kdpark.sickdan.util.service.StepService;
 import com.kdpark.sickdan.viewmodel.SignViewModel;
 import com.nhn.android.naverlogin.OAuthLogin;
 import com.nhn.android.naverlogin.OAuthLoginHandler;
@@ -120,7 +119,8 @@ public class SigninActivity extends AppCompatActivity {
 
     private void initObserver() {
         viewModel.token.observe(this, token -> {
-            SharedDataUtil.setData(SharedDataUtil.JWT_TOKEN, token);
+            getSharedPreferences(SharedDataUtil.JWT_INFO, MODE_PRIVATE);
+            SharedDataUtil.setData(SharedDataUtil.JWT_ACCESS_TOKEN, token);
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);

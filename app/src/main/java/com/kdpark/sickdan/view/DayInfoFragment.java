@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.FragmentDayInfoBinding;
+import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.util.ImageUtil;
 import com.kdpark.sickdan.view.control.meallist.MealAdapter;
 import com.kdpark.sickdan.view.control.meallist.MealItem;
@@ -119,6 +120,12 @@ public class DayInfoFragment extends Fragment {
                 }
             }
         });
+
+
+        if (viewModel.getMode() == CalendarUtil.MODE_PUBLIC) {
+            binding.frgDayinfoImgEdit.setVisibility(View.INVISIBLE);
+            adapter.setEditable(false);
+        }
 
         binding.frgDayinfoRcvMeals.setAdapter(adapter);
         binding.frgDayinfoRcvMeals.setLayoutManager(new LinearLayoutManager(getContext()));

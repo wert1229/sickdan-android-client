@@ -1,15 +1,19 @@
 package com.kdpark.sickdan.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
+import com.kdpark.sickdan.model.BaseCallback;
 import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.service.DailyService;
 import com.kdpark.sickdan.util.CalendarUtil;
+import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.control.calendar.CalendarCell;
 
 import java.text.SimpleDateFormat;
@@ -61,9 +65,9 @@ public class CalendarViewModel extends AndroidViewModel {
             dailyListData = ApiClient.getService(DailyService.class).getDailyListData(memberId, yyyymm);
         }
 
-        dailyListData.enqueue(new Callback<List<DailyDto>>() {
+        dailyListData.enqueue(new BaseCallback<List<DailyDto>>(getApplication()) {
             @Override
-            public void onResponse(Call<List<DailyDto>> call, Response<List<DailyDto>> response) {
+            public void onResponse(Response<List<DailyDto>> response) {
                 if (!response.isSuccessful()) return;
 
                 List<DailyDto> dailyData = response.body();
@@ -74,13 +78,23 @@ public class CalendarViewModel extends AndroidViewModel {
                     map.put(daily.getDate(), daily);
                 }
 
+                String today = CalendarUtil.calendarToString(Calendar.getInstance(), "yyyyMMdd");
+
                 for (CalendarCell cell : cellList) {
                     if (!map.containsKey(cell.getDate())) continue;
 
                     DailyDto info = map.get(cell.getDate());
 
                     cell.setBodyWeight(info.getBodyWeight());
-                    cell.setWalkCount(info.getWalkCount());
+
+                    if (mode ==  CalendarUtil.MODE_PRIVATE && today.equals(cell.getDate())) {
+                        SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.STEP_INFO, Context.MODE_PRIVATE);
+                        int todayCount = sp.getInt(today, 0);
+
+                        cell.setWalkCount(todayCount);
+                    } else {
+                        cell.setWalkCount(info.getWalkCount());
+                    }
                 }
 
                 currentDate.setValue(calendar);
@@ -88,7 +102,7 @@ public class CalendarViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<List<DailyDto>> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 currentDate.setValue(calendar);
                 dailyList.setValue(CalendarUtil.getDefaultOfMonth(calendar));
             }

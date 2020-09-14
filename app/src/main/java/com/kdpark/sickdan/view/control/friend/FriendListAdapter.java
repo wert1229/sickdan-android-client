@@ -4,8 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,8 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.model.dto.MemberRelationshipDto;
-import com.kdpark.sickdan.view.control.meallist.MealAdapter;
-import com.kdpark.sickdan.view.control.meallist.MealCellType;
+import com.kdpark.sickdan.model.dto.RelationshipStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +21,15 @@ public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context context;
     private List<MemberRelationshipDto> list;
-    private onCellClickListener listener;
+    private OnCalendarClick onCalendarClick;
+    private OnAcceptClick onAcceptClick;
 
-    public interface onCellClickListener {
-        void onCalendarClick(MemberRelationshipDto relationship);
+    public interface OnCalendarClick {
+        void onClick(MemberRelationshipDto relationship);
+    }
+
+    public interface OnAcceptClick {
+        void onClick(MemberRelationshipDto relationship);
     }
 
     public FriendListAdapter(Context context) {
@@ -43,8 +45,12 @@ public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.list = list;
     }
 
-    public void setOnCellClickListener(onCellClickListener listener) {
-        this.listener = listener;
+    public void setOnAcceptClick(OnAcceptClick onAcceptClick) {
+        this.onAcceptClick = onAcceptClick;
+    }
+
+    public void setOnCalendarClick(OnCalendarClick onCalendarClick) {
+        this.onCalendarClick = onCalendarClick;
     }
 
     @NonNull
@@ -60,8 +66,25 @@ public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int pos) {
         FriendViewHolder viewHolder = (FriendViewHolder) holder;
 
-        viewHolder.name.setText(String.format("%s(%s)", list.get(pos).getDisplayName(), list.get(pos).getStatus()));
-        viewHolder.calendar.setOnClickListener(v -> listener.onCalendarClick(list.get(pos)));
+        RelationshipStatus status = list.get(pos).getStatus();
+
+        switch (status) {
+            case REQUESTED:
+                viewHolder.calendar.setVisibility(View.INVISIBLE);
+                viewHolder.accept.setVisibility(View.VISIBLE);
+                break;
+            case FRIEND:
+                viewHolder.calendar.setVisibility(View.VISIBLE);
+                viewHolder.accept.setVisibility(View.INVISIBLE);
+                break;
+            default:
+                viewHolder.calendar.setVisibility(View.INVISIBLE);
+                viewHolder.accept.setVisibility(View.INVISIBLE);
+        }
+
+        viewHolder.name.setText(String.format("%s(%s)", list.get(pos).getDisplayName(), status.getDesc()));
+        viewHolder.calendar.setOnClickListener(v -> onCalendarClick.onClick(list.get(pos)));
+        viewHolder.accept.setOnClickListener(v -> onAcceptClick.onClick(list.get(pos)));
     }
 
     @Override
@@ -71,12 +94,14 @@ public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class FriendViewHolder extends RecyclerView.ViewHolder {
         TextView name;
-        ImageButton calendar;
+        ImageView calendar;
+        ImageView accept;
 
         public FriendViewHolder(@NonNull View itemView) {
             super(itemView);
             this.name = itemView.findViewById(R.id.lay_frienditem_tv_name);
             this.calendar = itemView.findViewById(R.id.lay_frienditem_btn_calendar);
+            this.accept = itemView.findViewById(R.id.lay_frienditem_btn_accept);
         }
     }
 }

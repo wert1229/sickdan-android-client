@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.WorkManager;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityMainBinding;
@@ -24,6 +25,7 @@ import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.util.service.StepService;
+import com.kdpark.sickdan.util.service.UploadStepWork;
 import com.kdpark.sickdan.viewmodel.MainViewModel;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
         initObserver();
 
-        syncPrevWalkCount();
+        loadCalendar();
 
         viewModel.getMyInfo();
     }
@@ -65,13 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.act_main_fl_main, fragment).commitAllowingStateLoss();
-    }
-
-    private void syncPrevWalkCount() {
-        sp = getSharedPreferences(SharedDataUtil.STEP_INFO, MODE_PRIVATE);
-        Map<String, ?> map = sp.getAll();
-
-        viewModel.uploadPrevWalkCount(map);
     }
 
     private void initData() {}
@@ -111,23 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initObserver() {
         viewModel.member.observe(this, memberDto -> binding.actMainTvTitle.setText(memberDto.getDisplayName()));
-
-        viewModel.syncComplete.observe(this, doneDateList -> {
-            List<String> list = doneDateList.getValueIfNotHandledOrNull();
-
-            if (list != null) {
-                for (String date : list) {
-                    sp.edit().remove(date).apply();
-                }
-            }
-
-            loadCalendar();
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

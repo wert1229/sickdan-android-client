@@ -1,35 +1,31 @@
 package com.kdpark.sickdan.view;
 
-import android.content.Context;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.view.WindowManager;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.kdpark.sickdan.R;
+import com.kdpark.sickdan.databinding.DialogFriendAddBinding;
 import com.kdpark.sickdan.databinding.FragmentFriendBinding;
-import com.kdpark.sickdan.model.dto.FriendSearchDto;
-import com.kdpark.sickdan.model.dto.MemberRelationshipDto;
+import com.kdpark.sickdan.model.dto.RelationshipStatus;
 import com.kdpark.sickdan.view.control.friend.FriendListAdapter;
-import com.kdpark.sickdan.viewmodel.FriendMainViewModel;
 import com.kdpark.sickdan.viewmodel.FriendViewModel;
 
-import java.util.List;
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class FriendFragment extends Fragment {
 
@@ -62,50 +58,124 @@ public class FriendFragment extends Fragment {
         initData();
         initView();
         initObserver();
+
+        viewModel.getMyCode();
+        viewModel.requestFriendList();
     }
 
     private void initData() {}
 
     private void initView() {
         adapter = new FriendListAdapter(requireContext());
-        adapter.setOnCellClickListener(relationship -> {
+        adapter.setOnCalendarClick(relationship -> {
             Intent intent = new Intent(requireContext(), FriendMainActivity.class);
             intent.putExtra("memberId", relationship.getId());
             intent.putExtra("displayName", relationship.getDisplayName());
             requireActivity().startActivity(intent);
         });
 
-        binding.frgFriendRcvFriends.setLayoutManager(new LinearLayoutManager(requireActivity()));
-        binding.frgFriendRcvFriends.setAdapter(adapter);
-
-        binding.frgFriendEdEmail.setOnFocusChangeListener((v, hasFocus) -> {
-            String content = ((EditText) v).getText().toString();
-
-            if (hasFocus) return;
-            if (content.isEmpty()) return;
-
-            InputMethodManager manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            manager.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-            viewModel.searchByEmail(content);
+        adapter.setOnAcceptClick(relationship -> {
+            viewModel.acceptFriendRequest(relationship.getId());
         });
 
-        binding.frgFriendBtnRequest.setOnClickListener(v -> viewModel.sendFriendRequest());
+        binding.frgFriendRcvFriends.setLayoutManager(new LinearLayoutManager(requireActivity()));
+        binding.frgFriendRcvFriends.setAdapter(adapter);
+        binding.frgFriendImgAdd.setOnClickListener(v -> {
+            showFriendAddDialog();
+        });
+
+        binding.frgFriendImgClipboard.setOnClickListener(v -> {
+            String code = binding.frgFriendTvMycode.getText().toString();
+            if (code.length() == 0) return;
+            ClipboardManager clipboardManager = (ClipboardManager)requireActivity().getSystemService(CLIPBOARD_SERVICE);
+
+            ClipData clipData = ClipData.newPlainText("code", code);
+            clipboardManager.setPrimaryClip(clipData);
+
+            Toast.makeText(requireActivity(), "클립보드에 복사되었습니다", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void initObserver() {
-        viewModel.getFriendList().observe(getViewLifecycleOwner(), friendList -> {
+        viewModel.friendList.observe(getViewLifecycleOwner(), friendList -> {
             adapter.setList(friendList);
             adapter.notifyDataSetChanged();
         });
 
-        viewModel.getSearchResult().observe(getViewLifecycleOwner(), searchResult ->
-                binding.frgFriendTvName.setText(searchResult.getDisplayName()));
+        viewModel.myCode.observe(requireActivity(), s -> binding.frgFriendTvMycode.setText(s));
 
-        viewModel.getFriendAddComplete().observe(getViewLifecycleOwner(), e -> {
-            if (e.getValueIfNotHandledOrNull() != null) viewModel.requestFriendList();
+        viewModel.friendAcceptComplete.observe(requireActivity(), booleanEvent -> viewModel.requestFriendList());
+    }
+
+    private void showFriendAddDialog() {
+        FriendAddDialog dialog = new FriendAddDialog(requireActivity());
+
+        DialogFriendAddBinding dialogBinding = DataBindingUtil.inflate(LayoutInflater.from(dialog.getContext()),
+                R.layout.dialog_friend_add, null, false);
+        dialog.setContentView(dialogBinding.getRoot());
+
+        DisplayMetrics dm = requireActivity().getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        WindowManager.LayoutParams wm = dialog.getWindow().getAttributes();
+        wm.width = (int) (width * 0.85);
+        wm.height = (int) (height * 0.5);
+
+        // setting
+        dialogBinding.dlgAddImgClose.setOnClickListener(v -> dialog.dismiss());
+
+        dialogBinding.dlgAddImgSearch.setOnClickListener(v -> {
+            String code = dialogBinding.dlgAddEdCode.getText().toString();
+
+            if (code.length() == 0) {
+                Toast.makeText(requireActivity(), "코드를 입력해주세요", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            viewModel.searchByCode(code);
         });
 
-        viewModel.requestFriendList();
+        dialogBinding.dlgAddBtnAdd.setOnClickListener(v -> viewModel.sendFriendRequest());
+
+        viewModel.searchResult.observe(requireActivity(), friendSearchDto -> {
+            String text = String.format("%s (%s)", friendSearchDto.getDisplayName(), friendSearchDto.getEmail());
+            dialogBinding.dlgAddTvResult.setText(text);
+
+            RelationshipStatus status = friendSearchDto.getStatus();
+
+            String btnCaption = "";
+            boolean isAble = false;
+            switch (status) {
+                case FRIEND:
+                    btnCaption = "친구";
+                    break;
+                case REQUESTED:
+                    btnCaption = "수락";
+                    break;
+                case REQUESTING:
+                    btnCaption = "요청중";
+                    break;
+                case SELF:
+                    btnCaption = "본인";
+                    break;
+                case NONE:
+                    btnCaption = "요청";
+                    isAble = true;
+                    break;
+            }
+            dialogBinding.dlgAddBtnAdd.setText(btnCaption);
+            dialogBinding.dlgAddBtnAdd.setEnabled(isAble);
+            dialogBinding.dlgAddClResult.setVisibility(View.VISIBLE);
+        });
+
+        viewModel.friendAddComplete.observe(getViewLifecycleOwner(), e -> {
+            if (e.getValueIfNotHandledOrNull() != null) {
+                dialog.dismiss();
+                viewModel.requestFriendList();
+            }
+        });
+
+        dialog.show();
     }
 }

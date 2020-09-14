@@ -34,9 +34,15 @@ public class MealAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context context;
     private List<MealItem> list;
     private Map<MealCategory, Integer> categoryCountMap;
+    private boolean isEditable = true;
 
     private OnManipulateMealListener onManipulateMealListener;
     private OnManipulatePhotoListener onManipulatePhotoListener;
+
+    public void setEditable(boolean isEditable) {
+        this.isEditable = isEditable;
+        notifyDataSetChanged();
+    }
 
     public interface OnManipulateMealListener {
         void onAddConfirmed(MealItem item);
@@ -140,6 +146,10 @@ public class MealAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 list.add(index, newItem);
                 notifyDataSetChanged();
             });
+
+            if (!isEditable) {
+                viewHolder.add.setVisibility(View.INVISIBLE);
+            }
         } else if (viewType == MealCellType.EDIT.getInt()) {
             MealEditViewHolder viewHolder = (MealEditViewHolder) holder;
 
@@ -205,6 +215,11 @@ public class MealAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     , LinearLayoutManager.HORIZONTAL
                     ,false));
             viewHolder.recyclerView.setAdapter(photoAdapter);
+
+            if (!isEditable) {
+                viewHolder.camera.setVisibility(View.INVISIBLE);
+                viewHolder.itemView.setOnLongClickListener(null);
+            }
         }
 
     }
