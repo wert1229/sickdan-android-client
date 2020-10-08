@@ -14,14 +14,18 @@ public class DailyDto {
     private String memo;
     private int walkCount;
     private float bodyWeight;
+    private int commentCount;
+    private int likeCount;
     private List<MealDto> meals = new ArrayList<>();
 
     @Builder
-    public DailyDto(String date, String memo, int walkCount, float bodyWeight, List<MealDto> meals) {
+    public DailyDto(String date, String memo, int walkCount, float bodyWeight, int commentCount, int likeCount, List<MealDto> meals) {
         this.date = date;
         this.memo = memo;
         this.walkCount = walkCount;
         this.bodyWeight = bodyWeight;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
         this.meals = meals;
     }
 }

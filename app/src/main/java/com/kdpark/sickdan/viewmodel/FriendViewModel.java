@@ -13,10 +13,18 @@ import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.model.dto.MemberRelationshipDto;
 import com.kdpark.sickdan.model.dto.RelationshipStatus;
 import com.kdpark.sickdan.model.service.MemberService;
+import com.kdpark.sickdan.view.control.friend.FriendItem;
+import com.kdpark.sickdan.view.control.friend.FriendSection;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import retrofit2.Call;
@@ -27,12 +35,13 @@ public class FriendViewModel extends AndroidViewModel {
 
     //== Data ==//
     public final MutableLiveData<FriendSearchDto> searchResult = new MutableLiveData<>();
-    public final MutableLiveData<List<MemberRelationshipDto>> friendList = new MutableLiveData<>();
+    public final MutableLiveData<List<FriendSection>> friendList = new MutableLiveData<>();
     public final MutableLiveData<String> myCode = new MutableLiveData<>("");
 
     //== Event ==//
     public final MutableLiveData<Event<Boolean>> friendAddComplete = new MutableLiveData<>();
     public final MutableLiveData<Event<Boolean>> friendAcceptComplete = new MutableLiveData<>();
+    public final MutableLiveData<Event<String>> showToast = new MutableLiveData<>();
 
     public FriendViewModel(@NonNull Application application) {
         super(application);
@@ -53,17 +62,46 @@ public class FriendViewModel extends AndroidViewModel {
         });
     }
 
-
     public void requestFriendList() {
-        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new Callback<MemberDto>() {
+        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new BaseCallback<MemberDto>(getApplication()) {
             @Override
-            public void onResponse(Call<MemberDto> call, Response<MemberDto> response) {
-                MemberDto member = response.body();
-                friendList.setValue(member.getRelationships());
+            public void onResponse(Response<MemberDto> response) {
+                List<MemberRelationshipDto> relationships = response.body().getRelationships();
+
+                Map<RelationshipStatus, List<FriendItem>> map = new HashMap<>();
+                map.put(RelationshipStatus.FRIEND, new ArrayList<>());
+                map.put(RelationshipStatus.REQUESTED, new ArrayList<>());
+                map.put(RelationshipStatus.REQUESTING, new ArrayList<>());
+
+                for (MemberRelationshipDto r : relationships) {
+                    if (!map.containsKey(r.getStatus())) map.put(r.getStatus(), new ArrayList<>());
+
+                    FriendItem item = FriendItem.builder()
+                            .displayName(r.getDisplayName())
+                            .email(r.getEmail())
+                            .id(r.getId())
+                            .status(r.getStatus())
+                            .build();
+
+                    map.get(r.getStatus()).add(item);
+                }
+
+                List<FriendSection> list = new ArrayList<>();
+
+                List<RelationshipStatus> keys = new ArrayList<>(map.keySet());
+                Collections.sort(keys, RelationshipStatus.SHOW_ORDER);;
+
+                for (RelationshipStatus status : keys) {
+                    List<FriendItem> items = map.get(status);
+                    String title = String.format(Locale.getDefault(), "%s (%d)", status.getDesc(), items.size());
+                    list.add(new FriendSection(title, items));
+                }
+
+                friendList.setValue(list);
             }
 
             @Override
-            public void onFailure(Call<MemberDto> call, Throwable t) {
+            public void onFailure(Throwable t) {
 
             }
         });
@@ -74,7 +112,10 @@ public class FriendViewModel extends AndroidViewModel {
             @Override
             public void onResponse(Response<FriendSearchDto> response) {
                 FriendSearchDto result = response.body();
-                if (result == null) return;
+                if (result == null) {
+                    showToast.setValue(new Event<>("검색 결과가 없습니다."));
+                    return;
+                }
                 searchResult.setValue(result);
             }
 

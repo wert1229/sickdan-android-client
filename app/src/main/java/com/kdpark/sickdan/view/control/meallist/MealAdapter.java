@@ -261,6 +261,7 @@ public class MealAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (currentEditItem != null) list.remove(currentEditItem);
 
         notifyDataSetChanged();
+
         return currentEditItem;
     }
 

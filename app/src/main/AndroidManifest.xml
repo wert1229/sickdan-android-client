@@ -20,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".view.CommentActivity"></activity>
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"
@@ -29,7 +30,9 @@
             android:name=".util.service.StepService"
             android:exported="false" />
 
-        <activity android:name=".view.LoadingActivity" android:theme="@style/Theme.AppCompat.Translucent"/>
+        <activity
+            android:name=".view.LoadingActivity"
+            android:theme="@style/Theme.AppCompat.Translucent" />
         <activity android:name=".view.FriendMainActivity" />
         <activity android:name=".view.DailyDetailActivity" />
         <activity android:name=".view.MainActivity" />

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
+import com.kdpark.sickdan.model.BaseCallback;
 import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.dto.MealAddRequest;
 import com.kdpark.sickdan.model.dto.MealCategory;
@@ -20,6 +22,7 @@ import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.control.meallist.MealCellType;
 import com.kdpark.sickdan.view.control.meallist.MealItem;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModel;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
 import java.text.SimpleDateFormat;
@@ -44,6 +47,9 @@ public class DailyDetailViewModel extends AndroidViewModel {
     private MutableLiveData<Float> bodyWeight = new MutableLiveData<>();
     private MutableLiveData<Integer> walkCount = new MutableLiveData<>();
     private MutableLiveData<List<MealItem>> mealList = new MutableLiveData<>();
+    private MutableLiveData<Integer> commentCount = new MutableLiveData<>();
+    private MutableLiveData<Integer> likeCount = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isLiked = new MutableLiveData<>();
 
     private int mode;
     private long memberId;
@@ -94,6 +100,8 @@ public class DailyDetailViewModel extends AndroidViewModel {
                 currentDate.setValue(calendar);
                 mealList.setValue(meals);
                 bodyWeight.setValue(daily.getBodyWeight());
+                commentCount.setValue(daily.getCommentCount());
+                likeCount.setValue(daily.getLikeCount());
 
                 String today = CalendarUtil.calendarToString(currentDate.getValue(), "yyyyMMdd");
 
@@ -208,6 +216,63 @@ public class DailyDetailViewModel extends AndroidViewModel {
             }
         });
 
+    }
+
+    public void isLiked() {
+        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
+        if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+        ApiClient.getService(DailyService.class).isLiked(memberId, yyyymmdd).enqueue(new BaseCallback<Map<String, Boolean>>(getApplication()) {
+            @Override
+            public void onResponse(Response<Map<String, Boolean>> response) {
+                if (!response.isSuccessful()) return;
+
+                boolean liked = response.body().get("isLiked");
+                isLiked.setValue(liked);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+    }
+
+    public void doLike() {
+        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
+        if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+
+        ApiClient.getService(DailyService.class).doLike(memberId, yyyymmdd).enqueue(new BaseCallback<Void>(getApplication()) {
+            @Override
+            public void onResponse(Response<Void> response) {
+                if (!response.isSuccessful()) return;
+                isLiked.setValue(true);
+                likeCount.setValue(likeCount.getValue() + 1);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
+    }
+
+    public void undoLike() {
+        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
+        // TODO api me 없애기
+        if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+        ApiClient.getService(DailyService.class).undoLike(memberId, yyyymmdd).enqueue(new BaseCallback<Void>(getApplication()) {
+            @Override
+            public void onResponse(Response<Void> response) {
+                if (!response.isSuccessful()) return;
+                isLiked.setValue(false);
+                likeCount.setValue(likeCount.getValue() - 1);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+
+            }
+        });
     }
 
     public void reload() {

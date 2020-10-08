@@ -1,5 +1,7 @@
 package com.kdpark.sickdan.model.service;
 
+import com.kdpark.sickdan.model.dto.CommentDto;
+import com.kdpark.sickdan.model.dto.CommentWriteRequest;
 import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.dto.MealAddRequest;
 import com.kdpark.sickdan.model.dto.MemberDto;
@@ -50,4 +52,19 @@ public interface DailyService {
 
     @PUT("api/v1/members/me/dailies")
     Call<Map<String, List<String>>> syncWalkCount(@Body Map<String, Integer> params);
+
+    @POST("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
+    Call<Void> writeComment(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd, @Body CommentWriteRequest request);
+
+    @GET("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
+    Call<List<CommentDto>> getComments(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
+
+    @GET("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes/me")
+    Call<Map<String, Boolean>> isLiked(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
+
+    @POST("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes")
+    Call<Void> doLike(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
+
+    @DELETE("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes")
+    Call<Void> undoLike(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
 }

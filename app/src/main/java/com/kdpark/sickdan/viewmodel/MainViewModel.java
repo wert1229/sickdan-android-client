@@ -13,6 +13,7 @@ import com.kdpark.sickdan.model.dto.DailyDto;
 import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.model.service.MemberService;
 import com.kdpark.sickdan.util.CalendarUtil;
+import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.control.calendar.CalendarCell;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
@@ -44,7 +45,9 @@ public class MainViewModel extends AndroidViewModel {
         ApiClient.getService(MemberService.class).getAuthMember().enqueue(new BaseCallback<MemberDto>(getApplication()) {
             @Override
             public void onResponse(Response<MemberDto> response) {
-                member.setValue(response.body());
+                MemberDto memberDto = response.body();
+                SharedDataUtil.setData(SharedDataUtil.AUTH_MEMBER_ID, memberDto.getId());
+                member.setValue(memberDto);
             }
 
             @Override

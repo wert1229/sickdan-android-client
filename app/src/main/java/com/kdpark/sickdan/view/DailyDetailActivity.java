@@ -48,6 +48,7 @@ public class DailyDetailActivity extends AppCompatActivity {
         calendar.set(Calendar.DATE, Integer.parseInt(date.substring(6)));
 
         viewModel.setDate(calendar);
+        viewModel.isLiked();
     }
 
     private void initView() {

@@ -12,6 +12,8 @@ public class SharedDataUtil {
     public static final String STEP_INFO = "step.info";
     public static final String TODAY_COUNT = "today.count";
 
+    public static final String AUTH_MEMBER_ID = "mymemberid";
+
     public static void setData(String key, String value) {
         sharedMap.put(key, value);
     }

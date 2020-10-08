@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -22,8 +23,15 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.DialogFriendAddBinding;
 import com.kdpark.sickdan.databinding.FragmentFriendBinding;
 import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.view.control.friend.FriendExpandAdapter;
+import com.kdpark.sickdan.view.control.friend.FriendItem;
 import com.kdpark.sickdan.view.control.friend.FriendListAdapter;
 import com.kdpark.sickdan.viewmodel.FriendViewModel;
+import com.kdpark.sickdan.viewmodel.common.Event;
+import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -31,7 +39,6 @@ public class FriendFragment extends Fragment {
 
     private FragmentFriendBinding binding;
     private FriendViewModel viewModel;
-    private FriendListAdapter adapter;
 
     public FriendFragment() {}
 
@@ -66,20 +73,9 @@ public class FriendFragment extends Fragment {
     private void initData() {}
 
     private void initView() {
-        adapter = new FriendListAdapter(requireContext());
-        adapter.setOnCalendarClick(relationship -> {
-            Intent intent = new Intent(requireContext(), FriendMainActivity.class);
-            intent.putExtra("memberId", relationship.getId());
-            intent.putExtra("displayName", relationship.getDisplayName());
-            requireActivity().startActivity(intent);
-        });
-
-        adapter.setOnAcceptClick(relationship -> {
-            viewModel.acceptFriendRequest(relationship.getId());
-        });
-
         binding.frgFriendRcvFriends.setLayoutManager(new LinearLayoutManager(requireActivity()));
-        binding.frgFriendRcvFriends.setAdapter(adapter);
+        binding.frgFriendRcvFriends.setAdapter(createAdapter(new ArrayList<>()));
+
         binding.frgFriendImgAdd.setOnClickListener(v -> {
             showFriendAddDialog();
         });
@@ -98,13 +94,33 @@ public class FriendFragment extends Fragment {
 
     private void initObserver() {
         viewModel.friendList.observe(getViewLifecycleOwner(), friendList -> {
-            adapter.setList(friendList);
-            adapter.notifyDataSetChanged();
+            FriendExpandAdapter adapter = createAdapter(friendList);
+            binding.frgFriendRcvFriends.setAdapter(adapter);
+            adapter.toggleGroup(0);
         });
 
         viewModel.myCode.observe(requireActivity(), s -> binding.frgFriendTvMycode.setText(s));
 
         viewModel.friendAcceptComplete.observe(requireActivity(), booleanEvent -> viewModel.requestFriendList());
+
+        viewModel.showToast.observe(requireActivity(), msg ->
+                Toast.makeText(requireContext(), msg.getValueIfNotHandledOrNull(), Toast.LENGTH_SHORT).show());
+    }
+
+    private FriendExpandAdapter createAdapter(List<? extends ExpandableGroup<FriendItem>> groups) {
+        FriendExpandAdapter adapter = new FriendExpandAdapter(requireContext(), groups);
+        adapter.setOnCalendarClick(relationship -> {
+            Intent intent = new Intent(requireContext(), FriendMainActivity.class);
+            intent.putExtra("memberId", relationship.getId());
+            intent.putExtra("displayName", relationship.getDisplayName());
+            requireActivity().startActivity(intent);
+        });
+
+        adapter.setOnAcceptClick(relationship -> {
+            viewModel.acceptFriendRequest(relationship.getId());
+        });
+
+        return adapter;
     }
 
     private void showFriendAddDialog() {
@@ -136,8 +152,6 @@ public class FriendFragment extends Fragment {
             viewModel.searchByCode(code);
         });
 
-        dialogBinding.dlgAddBtnAdd.setOnClickListener(v -> viewModel.sendFriendRequest());
-
         viewModel.searchResult.observe(requireActivity(), friendSearchDto -> {
             String text = String.format("%s (%s)", friendSearchDto.getDisplayName(), friendSearchDto.getEmail());
             dialogBinding.dlgAddTvResult.setText(text);
@@ -148,20 +162,23 @@ public class FriendFragment extends Fragment {
             boolean isAble = false;
             switch (status) {
                 case FRIEND:
-                    btnCaption = "친구";
+                    btnCaption = "이미 친구입니다";
                     break;
                 case REQUESTED:
-                    btnCaption = "수락";
+                    btnCaption = "요청 수락하기";
+                    isAble = true;
+                    dialogBinding.dlgAddBtnAdd.setOnClickListener(v -> viewModel.acceptFriendRequest(friendSearchDto.getId()));
                     break;
                 case REQUESTING:
-                    btnCaption = "요청중";
+                    btnCaption = "이미 요청중 입니다";
                     break;
                 case SELF:
-                    btnCaption = "본인";
+                    btnCaption = "본인은 추가할 수 없습니다";
                     break;
                 case NONE:
-                    btnCaption = "요청";
+                    btnCaption = "요청하기";
                     isAble = true;
+                    dialogBinding.dlgAddBtnAdd.setOnClickListener(v -> viewModel.sendFriendRequest());
                     break;
             }
             dialogBinding.dlgAddBtnAdd.setText(btnCaption);

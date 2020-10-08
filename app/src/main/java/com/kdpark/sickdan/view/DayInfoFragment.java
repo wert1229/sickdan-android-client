@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -28,6 +29,7 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.FragmentDayInfoBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.util.ImageUtil;
+import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.control.meallist.MealAdapter;
 import com.kdpark.sickdan.view.control.meallist.MealItem;
 import com.kdpark.sickdan.viewmodel.DailyDetailViewModel;
@@ -154,6 +156,35 @@ public class DayInfoFragment extends Fragment {
                 viewModel.editWeight(Double.parseDouble(text.toString()));
             }
         });
+
+        binding.frgDayinfoImgLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        binding.frgDayinfoImgComment.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), CommentActivity.class);
+            intent.putExtra("date", CalendarUtil.calendarToString(viewModel.getCurrentDate().getValue(), "yyyyMMdd"));
+            long memberId = viewModel.getMode() == CalendarUtil.MODE_PUBLIC ? viewModel.getMemberId()
+                    : Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+
+            intent.putExtra("memberId", memberId);
+
+            requireActivity().startActivity(intent);
+        });
+
+        binding.frgDayinfoImgLike.setOnClickListener(v -> {
+            Boolean isLiked = viewModel.getIsLiked().getValue();
+            if (isLiked == null) return;
+
+            if (isLiked)
+                viewModel.undoLike();
+            else
+                viewModel.doLike();
+        });
+
     }
 
     private void initObserver() {
@@ -165,6 +196,11 @@ public class DayInfoFragment extends Fragment {
             binding.frgDayinfoEdWeight.setText(String.valueOf(bodyWeight));
         });
 
+        viewModel.getCommentCount().observe(requireActivity(), commentCount ->
+                binding.frgDayinfoTvComment.setText(String.valueOf(commentCount)));
+
+        viewModel.getLikeCount().observe(requireActivity(), likeCount ->
+                binding.frgDayinfoTvLike.setText(String.valueOf(likeCount)));
 
         viewModel.getMealList().observe(getViewLifecycleOwner(), mealItems -> {
             adapter.setList(mealItems);
@@ -173,6 +209,16 @@ public class DayInfoFragment extends Fragment {
 
         viewModel.getToastEvent().observe(getViewLifecycleOwner(), msg ->
                 Toast.makeText(requireActivity(), msg.getValueIfNotHandledOrNull(), Toast.LENGTH_SHORT).show());
+
+        viewModel.getIsLiked().observe(requireActivity(), isLiked -> {
+            int resource;
+            if (isLiked)
+                resource = R.drawable.ic_like_filled;
+            else
+                resource = R.drawable.ic_like_empty;
+
+            binding.frgDayinfoImgLike.setImageDrawable(ResourcesCompat.getDrawable(getResources(), resource, null));
+        });
     }
 
     @Override

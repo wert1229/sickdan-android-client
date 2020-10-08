@@ -78,6 +78,7 @@ public class ApiClient {
     }
 
     public static <T> T getService(Class<T> nestedClass) {
+        // TODO NULL
         return retrofit.create(nestedClass);
     }
 

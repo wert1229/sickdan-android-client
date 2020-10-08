@@ -45,4 +45,7 @@
     <string name="my_code">내 코드</string>
     <string name="friend_code">친구 코드</string>
     <string name="friend_request">요청</string>
+
+    <string name="comment_title">댓글</string>
+    <string name="comment_hint">댓글 달기</string>
 </resources>

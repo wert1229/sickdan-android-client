@@ -17,6 +17,8 @@ import com.kdpark.sickdan.model.dto.RelationshipStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+
 public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;

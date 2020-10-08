@@ -91,6 +91,12 @@ public class CalendarViewModel extends AndroidViewModel {
                         SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.STEP_INFO, Context.MODE_PRIVATE);
                         int todayCount = sp.getInt(today, 0);
 
+                        if (todayCount == 0) {
+                            int count = info.getWalkCount();
+                            sp.edit().putInt(today, count).apply();
+                            todayCount = count;
+                        }
+
                         cell.setWalkCount(todayCount);
                     } else {
                         cell.setWalkCount(info.getWalkCount());

@@ -5,7 +5,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:background="@drawable/bg_card_white"
+        android:padding="15dp">
 
         <ImageView
             android:id="@+id/dlg_add_img_close"
@@ -24,6 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/friend_code"
+                android:textColor="@color/textGray1"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -51,12 +54,15 @@
             android:id="@+id/dlg_add_cl_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:visibility="gone">
 
             <TextView
                 android:id="@+id/dlg_add_tv_result"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:gravity="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -64,6 +70,7 @@
                 android:id="@+id/dlg_add_btn_add"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_marginTop="15dp"
                 android:background="@null"
                 android:text="@string/friend_request"
                 app:layout_constraintTop_toBottomOf="@id/dlg_add_tv_result"

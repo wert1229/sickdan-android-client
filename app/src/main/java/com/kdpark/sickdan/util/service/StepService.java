@@ -16,13 +16,13 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.WorkManager;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.IntroActivity;
-import com.kdpark.sickdan.view.SigninActivity;
 
 import java.util.Calendar;
 
@@ -45,7 +45,6 @@ public class StepService extends Service implements SensorEventListener {
     private final String CHANNEL_ID = "default";
     private final String CHANNEL_NAME = "defaultName";
 
-
     private SensorManager sensorManager;
     private Sensor stepCountSensor;
     private int todayStep;
@@ -55,12 +54,14 @@ public class StepService extends Service implements SensorEventListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        WorkManager.getInstance(this).enqueue(UploadStepWork.getWork());
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "step_sync",
+                ExistingPeriodicWorkPolicy.KEEP,
+                UploadStepWork.getWork());
 
         today = CalendarUtil.calendarToString(Calendar.getInstance(), "yyyyMMdd");
         sp = getSharedPreferences(SharedDataUtil.STEP_INFO, MODE_PRIVATE);
         todayStep = sp.getInt(today, 0);
-        SharedDataUtil.setData(SharedDataUtil.TODAY_COUNT, "" + todayStep);
 
         runForegroundService();
     }
@@ -125,7 +126,6 @@ public class StepService extends Service implements SensorEventListener {
         if (event.sensor.getType() != Sensor.TYPE_STEP_DETECTOR) return;
 
         todayStep++;
-        SharedDataUtil.setData(SharedDataUtil.TODAY_COUNT, "" + todayStep);
         sp.edit().putInt(today, todayStep).apply();
 
         String newToday = CalendarUtil.calendarToString(Calendar.getInstance(), "yyyyMMdd");
