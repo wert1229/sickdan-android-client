@@ -3,7 +3,7 @@ package com.kdpark.sickdan.view.control.friend;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.model.dto.enums.RelationshipStatus;
 
 import lombok.Builder;
 import lombok.Data;

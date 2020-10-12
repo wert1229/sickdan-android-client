@@ -3,7 +3,6 @@ package com.kdpark.sickdan.view.control.meallist;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kdpark.sickdan.R;
-import com.kdpark.sickdan.model.dto.MealCategory;
+import com.kdpark.sickdan.model.dto.enums.MealCategory;
 
 import java.util.ArrayList;
 import java.util.Collections;

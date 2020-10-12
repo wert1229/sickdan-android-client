@@ -1,36 +1,19 @@
 package com.kdpark.sickdan.view;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.WorkManager;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityMainBinding;
-import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.util.CalendarUtil;
-import com.kdpark.sickdan.util.SharedDataUtil;
-import com.kdpark.sickdan.util.service.StepService;
-import com.kdpark.sickdan.util.service.UploadStepWork;
 import com.kdpark.sickdan.viewmodel.MainViewModel;
-import com.kdpark.sickdan.viewmodel.common.Event;
-
-import java.util.List;
-import java.util.Map;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(MainViewModel.class);
 
         initData();

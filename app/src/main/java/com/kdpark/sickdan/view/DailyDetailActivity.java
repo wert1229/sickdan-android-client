@@ -11,6 +11,7 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityDailyDetailBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.viewmodel.DailyDetailViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -25,8 +26,9 @@ public class DailyDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_daily_detail);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(DailyDetailViewModel.class);
+
         initData();
         initView();
         initObserver();
@@ -36,18 +38,7 @@ public class DailyDetailActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        Bundle bundle = getIntent().getExtras();
-
-        viewModel.setMode(bundle.getInt(CalendarUtil.VIEW_MODE_KEY, 0));
-        viewModel.setMemberId(bundle.getLong("memberId", 0));
-
-        String date = bundle.getString("date");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, Integer.parseInt(date.substring(0, 4)));
-        calendar.set(Calendar.MONTH, Integer.parseInt(date.substring(4, 6)) - 1);
-        calendar.set(Calendar.DATE, Integer.parseInt(date.substring(6)));
-
-        viewModel.setDate(calendar);
+        viewModel.loadData();
         viewModel.isLiked();
     }
 
@@ -62,13 +53,13 @@ public class DailyDetailActivity extends AppCompatActivity {
     }
 
     private void initObserver() {
-        viewModel.getCurrentDate().observe(this, calendar -> {
+        viewModel.currentDate.observe(this, calendar -> {
             int month = calendar.get(Calendar.MONTH) + 1;
             int day = calendar.get(Calendar.DATE);
             binding.actDetailTvTitle.setText(String.format(Locale.getDefault(),"%d월 %d일", month, day));
         });
 
-        viewModel.getToastEvent().observe(this, message ->
+        viewModel.toastEvent.observe(this, message ->
                 Toast.makeText(getApplicationContext(), message.getValue(), Toast.LENGTH_SHORT).show());
     }
 }

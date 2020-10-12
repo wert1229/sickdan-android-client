@@ -20,23 +20,23 @@ import java.util.List;
 public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private List<CommentDto> list;
+    private List<CommentDto.Comment> list;
     private OnReplyClick onReplyClick;
 
     public interface OnReplyClick {
-        void onClick(CommentDto commentDto, boolean isRoot);
+        void onClick(CommentDto.Comment commentDto, boolean isRoot);
     }
 
     public CommentAdapter(Context context) {
         this(context, new ArrayList<>());
     }
 
-    public CommentAdapter(Context context, List<CommentDto> list) {
+    public CommentAdapter(Context context, List<CommentDto.Comment> list) {
         this.context = context;
         this.list = list;
     }
 
-    public void setList(List<CommentDto> list) {
+    public void setList(List<CommentDto.Comment> list) {
         this.list = list;
         notifyDataSetChanged();
     }

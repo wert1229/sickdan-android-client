@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivitySignupBinding;
 import com.kdpark.sickdan.viewmodel.SignViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -39,7 +40,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_signup);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(SignViewModel.class);
 
         initData();

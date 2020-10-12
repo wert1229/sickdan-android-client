@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.kdpark.sickdan.R;
-import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.model.dto.enums.RelationshipStatus;
 import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder;

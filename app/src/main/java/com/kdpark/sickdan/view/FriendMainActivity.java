@@ -13,6 +13,7 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityFriendMainBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.viewmodel.FriendMainViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 public class FriendMainActivity extends AppCompatActivity {
 
@@ -24,7 +25,7 @@ public class FriendMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_friend_main);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(FriendMainViewModel.class);
 
         initData();

@@ -5,29 +5,19 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.kdpark.sickdan.R;
-import com.kdpark.sickdan.databinding.FragmentCalendarBinding;
 import com.kdpark.sickdan.databinding.FragmentCalendarSwipeBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.view.control.calendar.CalendarAdapter;
-import com.kdpark.sickdan.view.control.calendar.CalendarCell;
 import com.kdpark.sickdan.viewmodel.CalendarViewModel;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 public class CalendarSwipeFragment extends Fragment {
 
@@ -54,11 +44,10 @@ public class CalendarSwipeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentCalendarSwipeBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(requireActivity(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                BundleViewModelFactory.getInstance(requireActivity().getApplication(), getArguments()))
                 .get(CalendarViewModel.class);
 
         return binding.getRoot();
@@ -91,7 +80,7 @@ public class CalendarSwipeFragment extends Fragment {
         binding.frgCalendarRcvCalendar.setLayoutManager(new GridLayoutManager(requireActivity(), 7));
         binding.frgCalendarRcvCalendar.setAdapter(adapter);
 
-        adapter.setList(CalendarUtil.getDefaultOfMonth(yyyymm));
+        adapter.setList(CalendarUtil.getDefaultMonthList(yyyymm));
     }
 
     private void initObserver() {

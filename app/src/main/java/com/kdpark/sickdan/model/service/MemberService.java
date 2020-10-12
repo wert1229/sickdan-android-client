@@ -1,6 +1,5 @@
 package com.kdpark.sickdan.model.service;
 
-import com.kdpark.sickdan.model.dto.FriendSearchDto;
 import com.kdpark.sickdan.model.dto.MemberDto;
 
 import java.util.Map;
@@ -14,7 +13,7 @@ import retrofit2.http.Query;
 
 public interface MemberService {
     @GET("api/v1/members/me")
-    Call<MemberDto> getAuthMember();
+    Call<MemberDto.Member> getAuthMember();
 
     @GET("api/v1/members/me/code")
     Call<Map<String, String>> getMyCode();
@@ -26,7 +25,7 @@ public interface MemberService {
     Call<Void> acceptFriend(@Body Long relatedId);
 
     @GET("api/v1/members")
-    Call<FriendSearchDto> searchMemberByFilter(@Query("by") String by, @Query("value") String value);
+    Call<MemberDto.FriendSearchResult> searchMemberByFilter(@Query("by") String by, @Query("value") String value);
 
     @GET("api/v1/members/exist")
     Call<Map<String, Boolean>> checkDuplicate(@Query("userId") String userId);

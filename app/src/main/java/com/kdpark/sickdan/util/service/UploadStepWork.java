@@ -37,6 +37,7 @@ public class UploadStepWork {
 
     public static class UploadWork extends Worker {
         private SharedPreferences sp;
+
         public UploadWork(@NonNull Context context, @NonNull WorkerParameters workerParams) {
             super(context, workerParams);
             sp = getApplicationContext().getSharedPreferences(SharedDataUtil.STEP_INFO, Context.MODE_PRIVATE);
@@ -45,36 +46,16 @@ public class UploadStepWork {
         @NonNull
         @Override
         public Result doWork() {
-            Map<String, ?> map = sp.getAll();
-            uploadWalkCount(map);
+            Map<String, Integer> param = getParamMap();
+            uploadWalkCount(param);
 
             return Result.success();
         }
 
-        private void uploadWalkCount(Map<String, ?> map) {
-            if (map.size() == 0) {
-                return;
-            }
-
-            Map<String, Integer> params = new HashMap<>();
-
-            final int MAX_COUNT = 5;
-            int count = 0;
-
-            for (String key : map.keySet()) {
-                Object value = map.get(key);
-
-                if (!(value instanceof Integer))
-                    map.remove(key);
-                else {
-                    params.put(key, (Integer) value);
-                    count++;
-                }
-
-                if (count > MAX_COUNT) break;
-            }
-
-            ApiClient.getService(DailyService.class).syncWalkCount(params).enqueue(new BaseCallback<Map<String, List<String>>>(getApplicationContext()) {
+        private void uploadWalkCount(Map<String, Integer> param) {
+            ApiClient.getService(getApplicationContext(), DailyService.class)
+                    .syncWalkCount(param)
+                    .enqueue(new BaseCallback<Map<String, List<String>>>(getApplicationContext()) {
                 @Override
                 public void onResponse(Response<Map<String, List<String>>> response) {
                     if (!response.isSuccessful()) {
@@ -91,7 +72,6 @@ public class UploadStepWork {
                         if (date.equals(CalendarUtil.getTodayString())) continue;
                         edit.remove(date);
                     }
-
                     edit.apply();
                 }
 
@@ -101,6 +81,29 @@ public class UploadStepWork {
                 @Override
                 public void onRefreshFailure() {}
             });
+        }
+
+        private Map<String, Integer> getParamMap() {
+            Map<String, ?> map = sp.getAll();
+            Map<String, Integer> params = new HashMap<>();
+
+            if (map.size() == 0) return params;
+
+            final int MAX_COUNT = 5;
+            int count = 0;
+
+            for (String key : map.keySet()) {
+                Object value = map.get(key);
+
+                if (value instanceof Integer) {
+                    params.put(key, (Integer) value);
+                    count++;
+                }
+
+                if (count > MAX_COUNT) break;
+            }
+
+            return params;
         }
     }
 }

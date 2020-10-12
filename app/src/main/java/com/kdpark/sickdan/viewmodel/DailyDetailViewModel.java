@@ -3,19 +3,16 @@ package com.kdpark.sickdan.viewmodel;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
 import com.kdpark.sickdan.model.BaseCallback;
 import com.kdpark.sickdan.model.dto.DailyDto;
-import com.kdpark.sickdan.model.dto.MealAddRequest;
-import com.kdpark.sickdan.model.dto.MealCategory;
+import com.kdpark.sickdan.model.dto.enums.MealCategory;
 import com.kdpark.sickdan.model.dto.MealDto;
 import com.kdpark.sickdan.model.service.DailyService;
 import com.kdpark.sickdan.util.CalendarUtil;
@@ -33,59 +30,69 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import lombok.Getter;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-@Getter
-public class DailyDetailViewModel extends AndroidViewModel {
+public class DailyDetailViewModel extends BundleViewModel {
 
     //== Data ==//
-    private MutableLiveData<Calendar> currentDate = new MutableLiveData<>();
-    private MutableLiveData<Float> bodyWeight = new MutableLiveData<>();
-    private MutableLiveData<Integer> walkCount = new MutableLiveData<>();
-    private MutableLiveData<List<MealItem>> mealList = new MutableLiveData<>();
-    private MutableLiveData<Integer> commentCount = new MutableLiveData<>();
-    private MutableLiveData<Integer> likeCount = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLiked = new MutableLiveData<>();
+    public final MutableLiveData<Calendar> currentDate = new MutableLiveData<>();
+    public final MutableLiveData<Float> bodyWeight = new MutableLiveData<>();
+    public final MutableLiveData<Integer> walkCount = new MutableLiveData<>();
+    public final MutableLiveData<List<MealItem>> mealList = new MutableLiveData<>();
+    public final MutableLiveData<Integer> commentCount = new MutableLiveData<>();
+    public final MutableLiveData<Integer> likeCount = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> isLiked = new MutableLiveData<>();
 
     private int mode;
     private long memberId;
+    private String date;
 
     //== Event ==//
-    private MutableLiveData<Event<String>> toastEvent = new MutableLiveData<>();
-    private MutableLiveData<Event<Boolean>> closeActivity = new MutableLiveData<>();
+    public final MutableLiveData<Event<String>> toastEvent = new MutableLiveData<>();
+    public final MutableLiveData<Event<Boolean>> closeActivity = new MutableLiveData<>();
 
-    public DailyDetailViewModel(@NonNull Application application) {
-        super(application);
+    public DailyDetailViewModel(@NonNull Application application, Bundle bundle) {
+        super(application, bundle);
+
+        if (bundle.containsKey(CalendarUtil.VIEW_MODE_KEY))
+            this.mode = bundle.getInt(CalendarUtil.VIEW_MODE_KEY);
+        if (bundle.containsKey("memberId"))
+            this.memberId = bundle.getLong("memberId");
+        if (bundle.containsKey("date"))
+            this.date = bundle.getString("date");
     }
 
-    public void setDate(Calendar calendar) {
+    public void loadData() {
+        loadDateData(CalendarUtil.stringToCalendar(date));
+    }
+
+    public void loadDateData(Calendar calendar) {
         String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(calendar.getTime());
 
         currentDate.setValue(calendar);
 
-        Call<DailyDto> dayDetailData;
+        Call<DailyDto.Daily> dayDetailData;
 
         if (mode == CalendarUtil.MODE_PRIVATE) {
-            dayDetailData = ApiClient.getService(DailyService.class).getDayDetailData(yyyymmdd);
+            dayDetailData = ApiClient.getService(getApplication(), DailyService.class).getDayDetailData(yyyymmdd);
         } else {
             if (memberId <= 0) return;
-            dayDetailData = ApiClient.getService(DailyService.class).getDayDetailData(memberId, yyyymmdd);
+            dayDetailData = ApiClient.getService(getApplication(), DailyService.class).getDayDetailData(memberId, yyyymmdd);
         }
 
-        dayDetailData.enqueue(new Callback<DailyDto>() {
+        dayDetailData.enqueue(new BaseCallback<DailyDto.Daily>(getApplication()) {
             @Override
-            public void onResponse(Call<DailyDto> call, Response<DailyDto> response) {
+            public void onResponse(Response<DailyDto.Daily> response) {
                 if (!response.isSuccessful()) return;
 
-                DailyDto daily = response.body();
+                DailyDto.Daily daily = response.body() != null ? response.body() : new DailyDto.Daily();
 
                 List<MealItem> meals = new ArrayList<>();
 
-                for (MealDto meal : daily.getMeals()) {
+                for (MealDto.Meal meal : daily.getMeals()) {
                     meals.add(
                             MealItem.builder()
                                     .id(meal.getId())
@@ -97,17 +104,14 @@ public class DailyDetailViewModel extends AndroidViewModel {
                     );
                 }
 
-                currentDate.setValue(calendar);
                 mealList.setValue(meals);
                 bodyWeight.setValue(daily.getBodyWeight());
                 commentCount.setValue(daily.getCommentCount());
                 likeCount.setValue(daily.getLikeCount());
 
-                String today = CalendarUtil.calendarToString(currentDate.getValue(), "yyyyMMdd");
-
                 if (mode ==  CalendarUtil.MODE_PRIVATE && CalendarUtil.isSameDate(currentDate.getValue(), Calendar.getInstance())) {
                     SharedPreferences sp = getApplication().getSharedPreferences(SharedDataUtil.STEP_INFO, Context.MODE_PRIVATE);
-                    int todayCount = sp.getInt(today, 0);
+                    int todayCount = sp.getInt(date, 0);
 
                     walkCount.setValue(todayCount);
                 } else {
@@ -116,8 +120,7 @@ public class DailyDetailViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<DailyDto> call, Throwable t) {
-                currentDate.setValue(calendar);
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
             }
         });
@@ -127,21 +130,26 @@ public class DailyDetailViewModel extends AndroidViewModel {
         String yyyymmdd = new SimpleDateFormat("yyyyMMdd",
                 Locale.getDefault()).format(currentDate.getValue().getTime());
 
-        MealAddRequest request = MealAddRequest.builder()
+        MealDto.MealAddRequest request = MealDto.MealAddRequest.builder()
                 .date(yyyymmdd)
                 .description(description)
                 .category(category)
                 .build();
 
-        ApiClient.getService(DailyService.class).addMeal(request).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), DailyService.class).addMeal(request).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                toastEvent.setValue(new Event<>("meal add confirm!"));
+            public void onResponse(Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    toastEvent.setValue(new Event<>("meal add failed!"));
+                } else {
+                    toastEvent.setValue(new Event<>("meal add confirm!"));
+                }
+
                 reload();
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
                 reload();
             }
@@ -149,32 +157,41 @@ public class DailyDetailViewModel extends AndroidViewModel {
     }
 
     public void editMealDesc(Long id, String description) {
-        Map<String, String> params = new HashMap<>();
-        params.put("description", description);
+        MealDto.MealEditRequest request = MealDto.MealEditRequest.builder()
+                .description(description)
+                .build();
 
-        ApiClient.getService(DailyService.class).editMeal(id, params).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), DailyService.class).editMeal(id, request).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                toastEvent.setValue(new Event<>("meal edit confirm!"));
+            public void onResponse(Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    toastEvent.setValue(new Event<>("meal edit failed!"));
+                } else {
+                    toastEvent.setValue(new Event<>("meal edit confirm!"));
+                }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
             }
         });
     }
 
     public void deleteMeal(Long id) {
-        ApiClient.getService(DailyService.class).deleteMeal(id).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), DailyService.class).deleteMeal(id).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                toastEvent.setValue(new Event<>("meal delete confirm!"));
+            public void onResponse(Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    toastEvent.setValue(new Event<>("meal delete failed!"));
+                } else {
+                    toastEvent.setValue(new Event<>("meal delete confirm!"));
+                }
                 reload();
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
                 reload();
             }
@@ -182,27 +199,27 @@ public class DailyDetailViewModel extends AndroidViewModel {
     }
 
     public void addPhoto(Long mealId, MultipartBody.Part part) {
-        ApiClient.getService(DailyService.class).addMealPhoto(mealId, part).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), DailyService.class).addMealPhoto(mealId, part).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 Log.e("PKD", response.toString());
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
             }
         });
     }
 
     public void editWeight(double weight) {
-        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
-        Map<String, Object> params = new HashMap<>();
-        params.put("bodyWeight", weight);
+        DailyDto.DayInfoUpdateRequest request = DailyDto.DayInfoUpdateRequest.builder()
+                .bodyWeight(weight)
+                .build();
 
-        ApiClient.getService(DailyService.class).editDaily(yyyymmdd, params).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), DailyService.class).editDaily(date, request).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) {
                     Log.e("PKD", response.toString());
                     return;
@@ -211,7 +228,7 @@ public class DailyDetailViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.e("PKD", t.toString());
             }
         });
@@ -219,29 +236,34 @@ public class DailyDetailViewModel extends AndroidViewModel {
     }
 
     public void isLiked() {
-        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
         if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
-        ApiClient.getService(DailyService.class).isLiked(memberId, yyyymmdd).enqueue(new BaseCallback<Map<String, Boolean>>(getApplication()) {
+        ApiClient.getService(getApplication(), DailyService.class).isLiked(memberId, date).enqueue(new BaseCallback<Map<String, Boolean>>(getApplication()) {
             @Override
             public void onResponse(Response<Map<String, Boolean>> response) {
                 if (!response.isSuccessful()) return;
 
-                boolean liked = response.body().get("isLiked");
+                boolean liked = response.body() != null ? response.body().get("isLiked") : false;
                 isLiked.setValue(liked);
             }
 
             @Override
-            public void onFailure(Throwable t) {
-
-            }
+            public void onFailure(Throwable t) {}
         });
     }
 
-    public void doLike() {
-        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
-        if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+    public void toggleLike() {
+        Boolean liked = isLiked.getValue();
+        if (liked == null) return;
 
-        ApiClient.getService(DailyService.class).doLike(memberId, yyyymmdd).enqueue(new BaseCallback<Void>(getApplication()) {
+        if (liked)
+            undoLike();
+        else
+            doLike();
+    }
+
+    public void doLike() {
+        if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
+        ApiClient.getService(getApplication(), DailyService.class).doLike(memberId, date).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
             public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) return;
@@ -257,10 +279,8 @@ public class DailyDetailViewModel extends AndroidViewModel {
     }
 
     public void undoLike() {
-        String yyyymmdd = new SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(currentDate.getValue().getTime());
-        // TODO api me 없애기
         if (memberId == 0) memberId = Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
-        ApiClient.getService(DailyService.class).undoLike(memberId, yyyymmdd).enqueue(new BaseCallback<Void>(getApplication()) {
+        ApiClient.getService(getApplication(), DailyService.class).undoLike(memberId, date).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
             public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) return;
@@ -276,14 +296,18 @@ public class DailyDetailViewModel extends AndroidViewModel {
     }
 
     public void reload() {
-        setDate(currentDate.getValue());
+        loadDateData(currentDate.getValue());
     }
 
-    public void setMode(int mode) {
-        this.mode = mode;
+    public int getMode() {
+        return mode;
     }
 
-    public void setMemberId(long memberId) {
-        this.memberId = memberId;
+    public long getMemberId() {
+        return memberId;
+    }
+
+    public String getDate() {
+        return date;
     }
 }

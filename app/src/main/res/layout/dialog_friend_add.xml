@@ -68,7 +68,7 @@
 
             <Button
                 android:id="@+id/dlg_add_btn_add"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_marginTop="15dp"
                 android:background="@null"

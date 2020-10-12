@@ -12,6 +12,7 @@ import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.ActivityCommentBinding;
 import com.kdpark.sickdan.view.control.comment.CommentAdapter;
 import com.kdpark.sickdan.viewmodel.CommentViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 public class CommentActivity extends AppCompatActivity {
 
@@ -24,7 +25,7 @@ public class CommentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_comment);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(CommentViewModel.class);
 
         initData();
@@ -34,14 +35,7 @@ public class CommentActivity extends AppCompatActivity {
         viewModel.getComments();
     }
 
-    private void initData() {
-        Bundle bundle = getIntent().getExtras();
-
-        viewModel.setMemberId(bundle.getLong("memberId", 0));
-
-        String date = bundle.getString("date");
-        viewModel.setDate(date);
-    }
+    private void initData() {}
 
     private void initView() {
         binding.actCommentImgSend.setOnClickListener(v -> {
@@ -71,7 +65,7 @@ public class CommentActivity extends AppCompatActivity {
                 binding.actCommentClTarget.setVisibility(View.GONE);
             } else {
                 binding.actCommentClTarget.setVisibility(View.VISIBLE);
-                binding.actCommentTvTarget.setText(replyInfo.second);
+                binding.actCommentTvTarget.setText(replyInfo.second + " 님에게 답글");
             }
         });
     }

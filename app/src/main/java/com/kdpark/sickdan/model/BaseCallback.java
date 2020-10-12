@@ -1,5 +1,6 @@
 package com.kdpark.sickdan.model;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
+import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.model.service.AuthService;
 import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.SigninActivity;
@@ -56,11 +58,13 @@ public abstract class BaseCallback<T> implements Callback<T> {
             return;
         }
 
-        Map<String, Object> param = Collections.singletonMap("refreshToken", refreshToken);
+        MemberDto.TokenRefreshRequest request = MemberDto.TokenRefreshRequest.builder()
+                .refreshToken(refreshToken)
+                .build();
 
         isRefreshProcessing = true;
 
-        ApiClient.getService(AuthService.class).refreshToken(param).enqueue(new Callback<Void>() {
+        ApiClient.getService(context, AuthService.class).refreshToken(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!response.isSuccessful()) {
@@ -74,7 +78,6 @@ public abstract class BaseCallback<T> implements Callback<T> {
                 sp.edit().putString(SharedDataUtil.JWT_ACCESS_TOKEN, accessToken).apply();
 
                 isRefreshProcessing = false;
-
                 flushJobQueue();
             }
 

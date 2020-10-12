@@ -15,19 +15,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.kdpark.sickdan.R;
 import com.kdpark.sickdan.databinding.DialogFriendAddBinding;
 import com.kdpark.sickdan.databinding.FragmentFriendBinding;
-import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.model.dto.enums.RelationshipStatus;
 import com.kdpark.sickdan.view.control.friend.FriendExpandAdapter;
 import com.kdpark.sickdan.view.control.friend.FriendItem;
-import com.kdpark.sickdan.view.control.friend.FriendListAdapter;
 import com.kdpark.sickdan.viewmodel.FriendViewModel;
-import com.kdpark.sickdan.viewmodel.common.Event;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
 
 import java.util.ArrayList;
@@ -52,7 +50,7 @@ public class FriendFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentFriendBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(requireActivity(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getActivity().getApplication()))
+                BundleViewModelFactory.getInstance(requireActivity().getApplication(), getArguments()))
                 .get(FriendViewModel.class);
 
         return binding.getRoot();

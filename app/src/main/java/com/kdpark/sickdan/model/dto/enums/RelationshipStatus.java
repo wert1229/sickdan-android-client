@@ -1,4 +1,4 @@
-package com.kdpark.sickdan.model.dto;
+package com.kdpark.sickdan.model.dto.enums;
 
 import java.util.Comparator;
 

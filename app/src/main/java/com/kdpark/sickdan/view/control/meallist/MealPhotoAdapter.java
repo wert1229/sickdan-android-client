@@ -8,13 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.kdpark.sickdan.R;
-import com.kdpark.sickdan.model.dto.MealPhotoDto;
+import com.kdpark.sickdan.model.dto.MealDto;
 
 import java.util.List;
 
@@ -24,10 +23,10 @@ import lombok.Getter;
 public class MealPhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private List<MealPhotoDto> list;
+    private List<MealDto.MealPhoto> list;
     private Handler handler;
 
-    public MealPhotoAdapter(Context context, List<MealPhotoDto> list) {
+    public MealPhotoAdapter(Context context, List<MealDto.MealPhoto> list) {
         this.context = context;
         this.list = list;
         this.handler = new Handler();

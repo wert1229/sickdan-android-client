@@ -30,8 +30,8 @@ public class StepService extends Service implements SensorEventListener {
 
     private MyBinder mMyBinder = new MyBinder();
 
-    class MyBinder extends Binder { //바인드 클래스를 생성
-        StepService getService() { // 서비스 객체를 리턴
+    class MyBinder extends Binder {
+        public StepService getService() {
             return StepService.this;
         }
     }
@@ -136,7 +136,5 @@ public class StepService extends Service implements SensorEventListener {
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 }

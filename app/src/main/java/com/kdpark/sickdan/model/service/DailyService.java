@@ -1,10 +1,8 @@
 package com.kdpark.sickdan.model.service;
 
 import com.kdpark.sickdan.model.dto.CommentDto;
-import com.kdpark.sickdan.model.dto.CommentWriteRequest;
 import com.kdpark.sickdan.model.dto.DailyDto;
-import com.kdpark.sickdan.model.dto.MealAddRequest;
-import com.kdpark.sickdan.model.dto.MemberDto;
+import com.kdpark.sickdan.model.dto.MealDto;
 
 import java.util.List;
 import java.util.Map;
@@ -23,22 +21,22 @@ import retrofit2.http.Query;
 
 public interface DailyService {
     @GET("api/v1/members/me/dailies")
-    Call<List<DailyDto>> getDailyListData(@Query("yyyymm") String yyyymm);
+    Call<List<DailyDto.Daily>> getDailyListData(@Query("yyyymm") String yyyymm);
 
     @GET("api/v1/members/me/dailies/{yyyymmdd}")
-    Call<DailyDto> getDayDetailData(@Path("yyyymmdd") String yyyymmdd);
+    Call<DailyDto.Daily> getDayDetailData(@Path("yyyymmdd") String yyyymmdd);
 
     @GET("api/v1/members/{memberId}/dailies")
-    Call<List<DailyDto>> getDailyListData(@Path("memberId")Long memberId, @Query("yyyymm") String yyyymm);
+    Call<List<DailyDto.Daily>> getDailyListData(@Path("memberId")Long memberId, @Query("yyyymm") String yyyymm);
 
     @GET("api/v1/members/{memberId}/dailies/{yyyymmdd}")
-    Call<DailyDto> getDayDetailData(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
+    Call<DailyDto.Daily> getDayDetailData(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
 
     @POST("api/v1/meals")
-    Call<Void> addMeal(@Body MealAddRequest request);
+    Call<Void> addMeal(@Body MealDto.MealAddRequest request);
 
     @PUT("api/v1/meals/{mealId}")
-    Call<Void> editMeal(@Path("mealId") Long id, @Body Map<String, String> params);
+    Call<Void> editMeal(@Path("mealId") Long id, @Body MealDto.MealEditRequest request);
 
     @DELETE("api/v1/meals/{mealId}")
     Call<Void> deleteMeal(@Path("mealId") Long id);
@@ -48,16 +46,16 @@ public interface DailyService {
     Call<Void> addMealPhoto(@Path(("mealId")) Long mealId, @Part MultipartBody.Part file);
 
     @PUT("api/v1/members/me/dailies/{yyyymmdd}")
-    Call<Void> editDaily(@Path("yyyymmdd") String yyyymmdd, @Body Map<String, Object> params);
+    Call<Void> editDaily(@Path("yyyymmdd") String yyyymmdd, @Body DailyDto.DayInfoUpdateRequest request);
 
-    @PUT("api/v1/members/me/dailies")
+    @PUT("api/v1/members/me/dailies/walkcounts")
     Call<Map<String, List<String>>> syncWalkCount(@Body Map<String, Integer> params);
 
     @POST("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
-    Call<Void> writeComment(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd, @Body CommentWriteRequest request);
+    Call<Void> writeComment(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd, @Body CommentDto.CommentWriteRequest request);
 
     @GET("/api/v1/members/{memberId}/dailies/{yyyymmdd}/comments")
-    Call<List<CommentDto>> getComments(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
+    Call<List<CommentDto.Comment>> getComments(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);
 
     @GET("/api/v1/members/{memberId}/dailies/{yyyymmdd}/likes/me")
     Call<Map<String, Boolean>> isLiked(@Path("memberId")Long memberId, @Path("yyyymmdd") String yyyymmdd);

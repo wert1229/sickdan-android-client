@@ -74,7 +74,8 @@ public class IntroActivity extends AppCompatActivity {
         String refreshToken = sp.getString(SharedDataUtil.JWT_REFRESH_TOKEN, "");
 
         Intent next;
-
+        accessToken = "";
+        refreshToken = "";
         if ("".equals(accessToken) && "".equals(refreshToken))
             next = new Intent(getApplicationContext(), SigninActivity.class);
         else

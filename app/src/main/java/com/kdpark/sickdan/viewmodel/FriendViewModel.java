@@ -1,6 +1,7 @@
 package com.kdpark.sickdan.viewmodel;
 
 import android.app.Application;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -8,13 +9,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
 import com.kdpark.sickdan.model.BaseCallback;
-import com.kdpark.sickdan.model.dto.FriendSearchDto;
 import com.kdpark.sickdan.model.dto.MemberDto;
-import com.kdpark.sickdan.model.dto.MemberRelationshipDto;
-import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.model.dto.enums.RelationshipStatus;
 import com.kdpark.sickdan.model.service.MemberService;
 import com.kdpark.sickdan.view.control.friend.FriendItem;
 import com.kdpark.sickdan.view.control.friend.FriendSection;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModel;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
 import java.util.ArrayList;
@@ -23,18 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import lombok.Getter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FriendViewModel extends AndroidViewModel {
+public class FriendViewModel extends BundleViewModel {
 
     //== Data ==//
-    public final MutableLiveData<FriendSearchDto> searchResult = new MutableLiveData<>();
+    public final MutableLiveData<MemberDto.FriendSearchResult> searchResult = new MutableLiveData<>();
     public final MutableLiveData<List<FriendSection>> friendList = new MutableLiveData<>();
     public final MutableLiveData<String> myCode = new MutableLiveData<>("");
 
@@ -43,14 +40,15 @@ public class FriendViewModel extends AndroidViewModel {
     public final MutableLiveData<Event<Boolean>> friendAcceptComplete = new MutableLiveData<>();
     public final MutableLiveData<Event<String>> showToast = new MutableLiveData<>();
 
-    public FriendViewModel(@NonNull Application application) {
-        super(application);
+    public FriendViewModel(@NonNull Application application, Bundle bundle) {
+        super(application, bundle);
     }
 
     public void getMyCode() {
-        ApiClient.getService(MemberService.class).getMyCode().enqueue(new BaseCallback<Map<String, String>>(getApplication()) {
+        ApiClient.getService(getApplication(), MemberService.class).getMyCode().enqueue(new BaseCallback<Map<String, String>>(getApplication()) {
             @Override
             public void onResponse(Response<Map<String, String>> response) {
+                if (!response.isSuccessful()) return;
                 String code = response.body() != null ? response.body().getOrDefault("code", "") : "";
                 myCode.setValue(code);
             }
@@ -63,17 +61,18 @@ public class FriendViewModel extends AndroidViewModel {
     }
 
     public void requestFriendList() {
-        ApiClient.getService(MemberService.class).getAuthMember().enqueue(new BaseCallback<MemberDto>(getApplication()) {
+        ApiClient.getService(getApplication(), MemberService.class).getAuthMember().enqueue(new BaseCallback<MemberDto.Member>(getApplication()) {
             @Override
-            public void onResponse(Response<MemberDto> response) {
-                List<MemberRelationshipDto> relationships = response.body().getRelationships();
+            public void onResponse(Response<MemberDto.Member> response) {
+                if (!response.isSuccessful()) return;
+                List<MemberDto.MemberRelationship> relationships = response.body().getRelationships();
 
                 Map<RelationshipStatus, List<FriendItem>> map = new HashMap<>();
                 map.put(RelationshipStatus.FRIEND, new ArrayList<>());
                 map.put(RelationshipStatus.REQUESTED, new ArrayList<>());
                 map.put(RelationshipStatus.REQUESTING, new ArrayList<>());
 
-                for (MemberRelationshipDto r : relationships) {
+                for (MemberDto.MemberRelationship r : relationships) {
                     if (!map.containsKey(r.getStatus())) map.put(r.getStatus(), new ArrayList<>());
 
                     FriendItem item = FriendItem.builder()
@@ -108,15 +107,40 @@ public class FriendViewModel extends AndroidViewModel {
     }
 
     public void searchByCode(String code) {
-        ApiClient.getService(MemberService.class).searchMemberByFilter("code", code).enqueue(new BaseCallback<FriendSearchDto>(getApplication()) {
-            @Override
-            public void onResponse(Response<FriendSearchDto> response) {
-                FriendSearchDto result = response.body();
-                if (result == null) {
-                    showToast.setValue(new Event<>("검색 결과가 없습니다."));
-                    return;
+        ApiClient.getService(getApplication(), MemberService.class)
+                .searchMemberByFilter("code", code).enqueue(new BaseCallback<MemberDto.FriendSearchResult>(getApplication()) {
+
+                @Override
+                public void onResponse(Response<MemberDto.FriendSearchResult> response) {
+                    if (!response.isSuccessful()) return;
+
+                    MemberDto.FriendSearchResult result = response.body();
+                    if (result == null) {
+                        showToast.setValue(new Event<>("검색 결과가 없습니다."));
+                        return;
+                    }
+                    searchResult.setValue(result);
                 }
-                searchResult.setValue(result);
+
+                @Override
+                public void onFailure(Throwable t) {
+
+                }
+        });
+    }
+
+    public void sendFriendRequest() {
+        MemberDto.FriendSearchResult result = searchResult.getValue();
+
+        if (result == null) return;
+        if (result.getStatus() != RelationshipStatus.NONE) return;
+
+        Long relatedId = result.getId();
+
+        ApiClient.getService(getApplication(), MemberService.class).requestFriend(relatedId).enqueue(new BaseCallback<Void>(getApplication()) {
+            @Override
+            public void onResponse(Response<Void> response) {
+                friendAddComplete.setValue(new Event<>(true));
             }
 
             @Override
@@ -126,31 +150,10 @@ public class FriendViewModel extends AndroidViewModel {
         });
     }
 
-    public void sendFriendRequest() {
-        FriendSearchDto result = searchResult.getValue();
-
-        if (result == null) return;
-        if (result.getStatus() != RelationshipStatus.NONE) return;
-
-        Long relatedId = result.getId();
-
-        ApiClient.getService(MemberService.class).requestFriend(relatedId).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                friendAddComplete.setValue(new Event(true));
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-
-            }
-        });
-    }
-
     public void acceptFriendRequest(Long friendId) {
         if (friendId == null) return;
 
-        ApiClient.getService(MemberService.class).acceptFriend(friendId).enqueue(new BaseCallback<Void>(getApplication()) {
+        ApiClient.getService(getApplication(), MemberService.class).acceptFriend(friendId).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
             public void onResponse(Response<Void> response) {
                 friendAcceptComplete.setValue(new Event<>(true));

@@ -23,6 +23,7 @@ import com.kdpark.sickdan.databinding.ActivitySigninBinding;
 import com.kdpark.sickdan.util.OAuthUtil;
 import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.viewmodel.SignViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 import com.nhn.android.naverlogin.OAuthLogin;
 import com.nhn.android.naverlogin.OAuthLoginHandler;
 
@@ -35,13 +36,12 @@ public class SigninActivity extends AppCompatActivity {
     private OAuthLogin mNaverLoginModule;
     private Session mKakaoSession;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_signin);
         viewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                BundleViewModelFactory.getInstance(getApplication(), getIntent().getExtras()))
                 .get(SignViewModel.class);
 
         initData();

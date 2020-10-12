@@ -16,6 +16,8 @@ import com.kdpark.sickdan.databinding.FragmentCalendarBinding;
 import com.kdpark.sickdan.util.CalendarUtil;
 import com.kdpark.sickdan.view.control.calendar.CalendarSlideAdapter;
 import com.kdpark.sickdan.viewmodel.CalendarViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -34,10 +36,10 @@ public class CalendarFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentCalendarBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(requireActivity(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getActivity().getApplication()))
+                BundleViewModelFactory.getInstance(requireActivity().getApplication(), getArguments()))
                 .get(CalendarViewModel.class);
 
         return binding.getRoot();
@@ -58,8 +60,6 @@ public class CalendarFragment extends Fragment {
 
     private void initData() {
         viewModel.setMonth(Calendar.getInstance());
-        viewModel.setMode(getArguments().getInt(CalendarUtil.VIEW_MODE_KEY));
-        viewModel.setMemberId(getArguments().getLong("memberId"));
     }
 
     private void initView() {

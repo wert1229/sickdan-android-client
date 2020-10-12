@@ -13,7 +13,7 @@ public class CalendarUtil {
     public static final int MODE_PRIVATE = 0;
     public static final int MODE_PUBLIC = 1;
 
-    public static List<CalendarCell> getDefaultOfMonth(final Calendar calendar) {
+    public static List<CalendarCell> getDefaultMonthList(Calendar calendar) {
         List<CalendarCell> defaultList = new ArrayList<>();
 
         Calendar temp = (Calendar) calendar.clone();
@@ -55,7 +55,7 @@ public class CalendarUtil {
         return defaultList;
     }
 
-    public static List<CalendarCell> getDefaultOfMonth(final String date) {
+    public static List<CalendarCell> getDefaultMonthList(String date) {
         int year = Integer.parseInt(date.substring(0, 4));
         int month = Integer.parseInt(date.substring(4, 6)) - 1;
         int day = 1;
@@ -63,10 +63,10 @@ public class CalendarUtil {
         Calendar cal = Calendar.getInstance();
         cal.set(year, month, day);
 
-        return getDefaultOfMonth(cal);
+        return getDefaultMonthList(cal);
     }
 
-    public static int getCalendarLineCount(final Calendar calendar) {
+    public static int getCalendarLineCount(Calendar calendar) {
         Calendar temp = (Calendar) calendar.clone();
         temp.set(Calendar.DATE, 1);
         int firstDayOfMonth = temp.get(Calendar.DAY_OF_WEEK);

@@ -33,6 +33,7 @@ import com.kdpark.sickdan.util.SharedDataUtil;
 import com.kdpark.sickdan.view.control.meallist.MealAdapter;
 import com.kdpark.sickdan.view.control.meallist.MealItem;
 import com.kdpark.sickdan.viewmodel.DailyDetailViewModel;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModelFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class DayInfoFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentDayInfoBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(requireActivity(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                BundleViewModelFactory.getInstance(requireActivity().getApplication(), getArguments()))
                 .get(DailyDetailViewModel.class);
 
         return binding.getRoot();
@@ -157,16 +158,9 @@ public class DayInfoFragment extends Fragment {
             }
         });
 
-        binding.frgDayinfoImgLike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         binding.frgDayinfoImgComment.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), CommentActivity.class);
-            intent.putExtra("date", CalendarUtil.calendarToString(viewModel.getCurrentDate().getValue(), "yyyyMMdd"));
+            intent.putExtra("date", viewModel.getDate());
             long memberId = viewModel.getMode() == CalendarUtil.MODE_PUBLIC ? viewModel.getMemberId()
                     : Long.parseLong(SharedDataUtil.getData(SharedDataUtil.AUTH_MEMBER_ID, false));
 
@@ -176,41 +170,35 @@ public class DayInfoFragment extends Fragment {
         });
 
         binding.frgDayinfoImgLike.setOnClickListener(v -> {
-            Boolean isLiked = viewModel.getIsLiked().getValue();
-            if (isLiked == null) return;
-
-            if (isLiked)
-                viewModel.undoLike();
-            else
-                viewModel.doLike();
+            viewModel.toggleLike();
         });
 
     }
 
     private void initObserver() {
-        viewModel.getWalkCount().observe(getViewLifecycleOwner(), walkCount ->
+        viewModel.walkCount.observe(getViewLifecycleOwner(), walkCount ->
                 binding.frgDayinfoTvWalkcount.setText(String.valueOf(walkCount)));
 
-        viewModel.getBodyWeight().observe(getViewLifecycleOwner(), bodyWeight -> {
+        viewModel.bodyWeight.observe(getViewLifecycleOwner(), bodyWeight -> {
             binding.frgDayinfoTvWeight.setText(String.valueOf(bodyWeight));
             binding.frgDayinfoEdWeight.setText(String.valueOf(bodyWeight));
         });
 
-        viewModel.getCommentCount().observe(requireActivity(), commentCount ->
+        viewModel.commentCount.observe(requireActivity(), commentCount ->
                 binding.frgDayinfoTvComment.setText(String.valueOf(commentCount)));
 
-        viewModel.getLikeCount().observe(requireActivity(), likeCount ->
+        viewModel.likeCount.observe(requireActivity(), likeCount ->
                 binding.frgDayinfoTvLike.setText(String.valueOf(likeCount)));
 
-        viewModel.getMealList().observe(getViewLifecycleOwner(), mealItems -> {
+        viewModel.mealList.observe(getViewLifecycleOwner(), mealItems -> {
             adapter.setList(mealItems);
             adapter.notifyDataSetChanged();
         });
 
-        viewModel.getToastEvent().observe(getViewLifecycleOwner(), msg ->
+        viewModel.toastEvent.observe(getViewLifecycleOwner(), msg ->
                 Toast.makeText(requireActivity(), msg.getValueIfNotHandledOrNull(), Toast.LENGTH_SHORT).show());
 
-        viewModel.getIsLiked().observe(requireActivity(), isLiked -> {
+        viewModel.isLiked.observe(requireActivity(), isLiked -> {
             int resource;
             if (isLiked)
                 resource = R.drawable.ic_like_filled;

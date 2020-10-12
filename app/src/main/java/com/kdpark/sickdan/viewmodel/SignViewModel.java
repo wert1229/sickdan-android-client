@@ -3,6 +3,7 @@ package com.kdpark.sickdan.viewmodel;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,12 +11,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kdpark.sickdan.model.ApiClient;
-import com.kdpark.sickdan.model.dto.OAuthTokenInfoDto;
+import com.kdpark.sickdan.model.BaseCallback;
+import com.kdpark.sickdan.model.dto.MemberDto;
 import com.kdpark.sickdan.model.service.AuthService;
-import com.kdpark.sickdan.model.dto.SignInForm;
-import com.kdpark.sickdan.model.dto.SignUpForm;
 import com.kdpark.sickdan.model.service.MemberService;
 import com.kdpark.sickdan.util.SharedDataUtil;
+import com.kdpark.sickdan.viewmodel.common.BundleViewModel;
 import com.kdpark.sickdan.viewmodel.common.ErrorResponse;
 import com.kdpark.sickdan.viewmodel.common.Event;
 
@@ -27,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SignViewModel extends AndroidViewModel {
+public class SignViewModel extends BundleViewModel {
 
     //== Data ==//
     public final MutableLiveData<String> token = new MutableLiveData<>();
@@ -48,8 +49,8 @@ public class SignViewModel extends AndroidViewModel {
     public final MutableLiveData<Event<String>> onSignupSuccess = new MutableLiveData<>();
     public final MutableLiveData<Event<String>> onSigninSuccess = new MutableLiveData<>();
 
-    public SignViewModel(@NonNull Application application) {
-        super(application);
+    public SignViewModel(@NonNull Application application, Bundle bundle) {
+        super(application, bundle);
     }
 
     public void togglePasswordVisible() {
@@ -79,15 +80,16 @@ public class SignViewModel extends AndroidViewModel {
     public void checkIdDuplicate(String userId) {
         this.userId.setValue(userId);
 
-        ApiClient.getService(MemberService.class).checkDuplicate(userId).enqueue(new Callback<Map<String, Boolean>>() {
+        ApiClient.getService(getApplication(), MemberService.class).checkDuplicate(userId).enqueue(new BaseCallback<Map<String, Boolean>>(getApplication()) {
             @Override
-            public void onResponse(Call<Map<String, Boolean>> call, Response<Map<String, Boolean>> response) {
-                boolean exist = response.body().get("exist");
+            public void onResponse(Response<Map<String, Boolean>> response) {
+                if (!response.isSuccessful()) return;
+                boolean exist = response.body() != null ? response.body().get("exist") : true;
                 isUserIdOk.setValue(!exist);
             }
 
             @Override
-            public void onFailure(Call<Map<String, Boolean>> call, Throwable t) {
+            public void onFailure(Throwable t) {
 
             }
         });
@@ -102,36 +104,36 @@ public class SignViewModel extends AndroidViewModel {
     }
 
     public void signup() {
-        SignUpForm signUpForm = SignUpForm.builder()
+        MemberDto.SignUpForm signUpForm = MemberDto.SignUpForm.builder()
                 .userId(userId.getValue())
                 .password(password.getValue())
                 .displayName(displayName.getValue())
                 .email(email.getValue())
                 .build();
 
-        ApiClient.getService(AuthService.class).signUp(signUpForm).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), AuthService.class).signUp(signUpForm).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) return;
                 onSignupSuccess.setValue(new Event<>("정상적으로 가입되었습니다"));
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.d("PKD", t.toString());
             }
         });
     }
 
     public void signin(String userId, String password) {
-        SignInForm signInForm = SignInForm.builder()
+        MemberDto.SignInForm signInForm = MemberDto.SignInForm.builder()
                 .userId(userId)
                 .password(password)
                 .build();
 
-        ApiClient.getService(AuthService.class).signIn(signInForm).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), AuthService.class).signIn(signInForm).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) {
                     ErrorResponse error = ApiClient.getErrorResponse(response);
                     showToast.setValue(new Event<>(error.getMessage()));
@@ -150,23 +152,23 @@ public class SignViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
                 Log.d("PKD", t.toString());
             }
         });
     }
 
     public void naverLogin(String accessToken, String refreshToken, long expiresAt, String tokenType) {
-        OAuthTokenInfoDto info = OAuthTokenInfoDto.builder()
+        MemberDto.OAuthTokenInfo info = MemberDto.OAuthTokenInfo.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiresAt(expiresAt)
                 .tokenType(tokenType)
                 .build();
 
-        ApiClient.getService(AuthService.class).authNaver(info).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), AuthService.class).authNaver(info).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) {
                     ErrorResponse error = ApiClient.getErrorResponse(response);
                     showToast.setValue(new Event<>(error.getMessage()));
@@ -185,22 +187,22 @@ public class SignViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
 
             }
         });
     }
 
     public void kakaoLogin(String accessToken, String refreshToken, long expiresAt) {
-        OAuthTokenInfoDto info = OAuthTokenInfoDto.builder()
+        MemberDto.OAuthTokenInfo info = MemberDto.OAuthTokenInfo.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiresAt(expiresAt)
                 .build();
 
-        ApiClient.getService(AuthService.class).authKakao(info).enqueue(new Callback<Void>() {
+        ApiClient.getService(getApplication(), AuthService.class).authKakao(info).enqueue(new BaseCallback<Void>(getApplication()) {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Response<Void> response) {
                 if (!response.isSuccessful()) {
                     ErrorResponse error = ApiClient.getErrorResponse(response);
                     showToast.setValue(new Event<>(error.getMessage()));
@@ -219,7 +221,7 @@ public class SignViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Throwable t) {
 
             }
         });

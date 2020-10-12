@@ -33,11 +33,20 @@ public class ApiClient {
 
     private ApiClient() {}
 
-    public static void init(Application application) {
-        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-        OkHttpClient client = clientBuilder.addInterceptor(chain -> {
+    public static void init(Context context) {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .client(getHttpClient(context))
+                .build();
+    }
 
-            SharedPreferences sp = application.getSharedPreferences(SharedDataUtil.JWT_INFO, Context.MODE_PRIVATE);
+    private static OkHttpClient getHttpClient(Context context) {
+        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+        return clientBuilder.addInterceptor(chain -> {
+
+            SharedPreferences sp = context.getSharedPreferences(SharedDataUtil.JWT_INFO, Context.MODE_PRIVATE);
             String accessToken = sp.getString(SharedDataUtil.JWT_ACCESS_TOKEN, "");
 
             Request request;
@@ -50,16 +59,11 @@ public class ApiClient {
 
             return chain.proceed(request);
         }).build();
-
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(JacksonConverterFactory.create())
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .client(client)
-                .build();
     }
 
     public static ErrorResponse getErrorResponse(Response<?> response) {
+        if (response == null) return new ErrorResponse();
+
         Converter<ResponseBody, ErrorResponse> errorConverter =
                 retrofit.responseBodyConverter(ErrorResponse.class, new Annotation[0]);
 
@@ -77,8 +81,9 @@ public class ApiClient {
         return errorResponse;
     }
 
-    public static <T> T getService(Class<T> nestedClass) {
-        // TODO NULL
+    public static <T> T getService(Context context, Class<T> nestedClass) {
+        if (retrofit == null)
+            init(context);
         return retrofit.create(nestedClass);
     }
 

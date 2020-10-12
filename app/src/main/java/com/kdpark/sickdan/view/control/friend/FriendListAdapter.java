@@ -11,39 +11,37 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kdpark.sickdan.R;
-import com.kdpark.sickdan.model.dto.MemberRelationshipDto;
-import com.kdpark.sickdan.model.dto.RelationshipStatus;
+import com.kdpark.sickdan.model.dto.MemberDto;
+import com.kdpark.sickdan.model.dto.enums.RelationshipStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-
 public class FriendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private List<MemberRelationshipDto> list;
+    private List<MemberDto.MemberRelationship> list;
     private OnCalendarClick onCalendarClick;
     private OnAcceptClick onAcceptClick;
 
     public interface OnCalendarClick {
-        void onClick(MemberRelationshipDto relationship);
+        void onClick(MemberDto.MemberRelationship relationship);
     }
 
     public interface OnAcceptClick {
-        void onClick(MemberRelationshipDto relationship);
+        void onClick(MemberDto.MemberRelationship relationship);
     }
 
     public FriendListAdapter(Context context) {
         this(context, new ArrayList<>());
     }
 
-    public FriendListAdapter(Context context, List<MemberRelationshipDto> list) {
+    public FriendListAdapter(Context context, List<MemberDto.MemberRelationship> list) {
         this.context = context;
         this.list = list;
     }
 
-    public void setList(List<MemberRelationshipDto> list) {
+    public void setList(List<MemberDto.MemberRelationship> list) {
         this.list = list;
     }
 

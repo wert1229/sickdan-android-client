@@ -14,9 +14,9 @@ public class BundleViewModelFactory extends ViewModelProvider.NewInstanceFactory
 
     @NonNull
     public static BundleViewModelFactory getInstance(@NonNull Application application, Bundle bundle) {
-        if (sInstance == null) {
+//        if (sInstance == null) {
             sInstance = new BundleViewModelFactory(application, bundle);
-        }
+//        }
         return sInstance;
     }
 
@@ -25,7 +25,7 @@ public class BundleViewModelFactory extends ViewModelProvider.NewInstanceFactory
 
     public BundleViewModelFactory(@NonNull Application application, Bundle bundle) {
         mApplication = application;
-        mBundle = bundle;
+        mBundle = bundle != null ? bundle : new Bundle();
     }
 
     @NonNull
